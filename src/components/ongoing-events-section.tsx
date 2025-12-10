@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useSuspenseQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { Calendar, Clock, MapPin, Plus, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -26,7 +26,7 @@ export function OngoingEventsSection() {
 
   const [createAgendaMutation] = useMutation(CREATE_AGENDA);
 
-  const { data, error } = useSuspenseQuery<EventsResponse>(GET_EVENTS, {
+  const { data, error } = useQuery<EventsResponse>(GET_EVENTS, {
     variables: {
       filters: debouncedSearchTerm
         ? { title: { contains: debouncedSearchTerm } }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useSuspenseQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { Calendar, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -22,7 +22,7 @@ export function CommunityGrid({
 }) {
   const { debouncedSearchTerm } = useFilters();
 
-  const { data, error } = useSuspenseQuery<CommunitiesResponse>(
+  const { data, error } = useQuery<CommunitiesResponse>(
     GET_COMMUNITIES,
     {
       variables: {

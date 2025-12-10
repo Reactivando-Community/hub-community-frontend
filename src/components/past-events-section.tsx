@@ -1,6 +1,6 @@
 'use client';
 
-import { useSuspenseQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { Calendar, Clock, MapPin, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,7 +17,7 @@ import { adjustToBrazilTimezone } from '@/utils/event';
 export function PastEventsSection() {
   const { debouncedSearchTerm } = useFilters();
 
-  const { data, error } = useSuspenseQuery<EventsResponse>(GET_EVENTS, {
+  const { data, error } = useQuery<EventsResponse>(GET_EVENTS, {
     variables: {
       filters: debouncedSearchTerm
         ? { title: { contains: debouncedSearchTerm } }
