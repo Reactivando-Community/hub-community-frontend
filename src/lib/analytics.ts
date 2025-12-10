@@ -1,3 +1,6 @@
+import { logEvent } from 'firebase/analytics';
+import { analytics } from './firebase';
+
 // Event names
 export const ANALYTICS_EVENTS = {
   ADD_TALK_TO_AGENDA: 'add_talk_to_agenda',
@@ -20,10 +23,25 @@ export const trackEvent = (
     return;
   }
 
-  if (process.env.NODE_ENV !== 'production') {
-    // Helpful debug log in development; in production you can
-    // replace this with a real analytics implementation.
-    console.log(`Analytics event (noop): ${eventName}`, parameters);
+  try {
+    if (analytics) {
+      // Send event to Firebase Analytics
+      logEvent(analytics, eventName, parameters);
+
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`Analytics event tracked: ${eventName}`, parameters);
+      }
+    } else {
+      // Analytics not yet initialized
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `Analytics not initialized. Event not tracked: ${eventName}`,
+          parameters
+        );
+      }
+    }
+  } catch (error) {
+    console.error('Error tracking analytics event:', error);
   }
 };
 

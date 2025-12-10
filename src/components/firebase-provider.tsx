@@ -1,14 +1,20 @@
 'use client';
 
+import { app, initializeAnalytics } from '@/lib/firebase';
 import { useEffect } from 'react';
-import { app } from '@/lib/firebase';
 
 export function FirebaseProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Firebase app is initialized when the module is imported
-    // Analytics is handled in the firebase.ts file
+    // Initialize Firebase app and Analytics
     if (app) {
-      console.log('Firebase initialized successfully');
+      console.log('Firebase app initialized successfully');
+
+      // Initialize Analytics asynchronously
+      initializeAnalytics().catch(error => {
+        console.error('Failed to initialize Firebase Analytics:', error);
+      });
+    } else {
+      console.warn('Firebase app not initialized');
     }
   }, []);
 
