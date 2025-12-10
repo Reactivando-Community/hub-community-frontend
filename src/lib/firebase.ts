@@ -1,4 +1,3 @@
-import { Analytics, getAnalytics } from 'firebase/analytics';
 import { getApps, initializeApp } from 'firebase/app';
 
 // Your web app's Firebase configuration
@@ -12,21 +11,11 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
+// Initialize Firebase app only in environments where it's safe
 let app;
-let analytics: Analytics | null = null;
 
 if (typeof window !== 'undefined') {
   app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-
-  // Initialize Analytics only in browser environment
-  //   if (process.env.NODE_ENV === 'production') {
-  try {
-    analytics = getAnalytics(app);
-  } catch (error) {
-    console.warn('Firebase Analytics initialization failed:', error);
-  }
-  //   }
 }
 
-export { analytics, app };
+export { app };

@@ -1,6 +1,3 @@
-import { logEvent } from 'firebase/analytics';
-import { analytics } from './firebase';
-
 // Event names
 export const ANALYTICS_EVENTS = {
   ADD_TALK_TO_AGENDA: 'add_talk_to_agenda',
@@ -17,13 +14,16 @@ export const trackEvent = (
   eventName: string,
   parameters?: Record<string, any>
 ) => {
-  if (analytics && typeof window !== 'undefined') {
-    try {
-      logEvent(analytics, eventName, parameters);
-      console.log(`Analytics event: ${eventName}`, parameters);
-    } catch (error) {
-      console.warn('Failed to log analytics event:', error);
-    }
+  // In this environment we make analytics a safe no-op on the server to avoid
+  // accessing browser globals like `window` during Next.js build/SSR.
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    // Helpful debug log in development; in production you can
+    // replace this with a real analytics implementation.
+    console.log(`Analytics event (noop): ${eventName}`, parameters);
   }
 };
 
