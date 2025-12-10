@@ -337,7 +337,9 @@ export default function AboutPage() {
                   size="lg"
                   className="flex items-center gap-2"
                   onClick={() => {
-                    window.open('mailto:contato@8020digital.com.br');
+                    if (typeof window !== 'undefined') {
+                      window.open('mailto:contato@8020digital.com.br');
+                    }
                   }}
                 >
                   <Mail className="h-4 w-4" />
@@ -348,10 +350,12 @@ export default function AboutPage() {
                   variant="outline"
                   className="flex items-center gap-2 bg-transparent"
                   onClick={() => {
-                    window.open(
-                      'https://instagram.com/joincommunity',
-                      '_blank'
-                    );
+                    if (typeof window !== 'undefined') {
+                      window.open(
+                        'https://instagram.com/joincommunity',
+                        '_blank'
+                      );
+                    }
                   }}
                 >
                   <Instagram className="h-4 w-4" />

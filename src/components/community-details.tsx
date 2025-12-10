@@ -67,7 +67,13 @@ export function CommunityDetails({ communityId }: CommunityDetailsProps) {
           <p className="text-gray-600 mb-4">
             Não foi possível carregar os detalhes da comunidade.
           </p>
-          <Button onClick={() => window.location.reload()}>
+          <Button
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.location.reload();
+              }
+            }}
+          >
             Tentar novamente
           </Button>
         </div>
@@ -156,7 +162,8 @@ export function CommunityDetails({ communityId }: CommunityDetailsProps) {
                   if (
                     community.links &&
                     community.links.length > 0 &&
-                    community.links[0].url
+                    community.links[0].url &&
+                    typeof window !== 'undefined'
                   ) {
                     window.open(community.links[0].url, '_blank');
                   }
@@ -170,11 +177,17 @@ export function CommunityDetails({ communityId }: CommunityDetailsProps) {
                 variant="outline"
                 className="border-white text-white hover:bg-white hover:text-blue-600 bg-transparent w-full sm:w-auto"
                 onClick={() => {
-                  navigator.share({
-                    title: `Confira a comunidade ${community.title}\n`,
-                    text: `\n${community.short_description}`,
-                    url: window.location.href,
-                  });
+                  if (
+                    typeof navigator !== 'undefined' &&
+                    typeof window !== 'undefined' &&
+                    'share' in navigator
+                  ) {
+                    navigator.share({
+                      title: `Confira a comunidade ${community.title}\n`,
+                      text: `\n${community.short_description}`,
+                      url: window.location.href,
+                    });
+                  }
                 }}
               >
                 <Share2 className="h-4 w-4 mr-2" />

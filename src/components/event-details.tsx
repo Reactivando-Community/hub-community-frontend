@@ -85,7 +85,13 @@ export function EventDetails({ eventId }: EventDetailsProps) {
           <p className="text-gray-600 mb-4">
             Não foi possível carregar os detalhes do evento.
           </p>
-          <Button onClick={() => window.location.reload()}>
+          <Button
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.location.reload();
+              }
+            }}
+          >
             Tentar novamente
           </Button>
         </div>
@@ -289,10 +295,13 @@ export function EventDetails({ eventId }: EventDetailsProps) {
                 className="bg-white text-blue-600 hover:bg-gray-100"
                 disabled={!event.subscription_link}
                 onClick={() => {
-                  if (event.subscription_link) {
-                    window.open(event.subscription_link, '_blank');
-                  } else {
+                  if (!event.subscription_link) {
                     alert('Link de inscrição não disponível.');
+                    return;
+                  }
+
+                  if (typeof window !== 'undefined') {
+                    window.open(event.subscription_link, '_blank');
                   }
                 }}
               >
@@ -304,11 +313,23 @@ export function EventDetails({ eventId }: EventDetailsProps) {
                 variant="outline"
                 className="border-white text-white hover:bg-white hover:text-blue-600 bg-transparent w-full sm:w-auto"
                 onClick={() => {
-                  navigator.share({
-                    title: `Confira o evento ${typeof event.title === 'string' ? event.title : 'Evento'}\n`,
-                    text: `\n${typeof event?.description === 'string' ? event.description : 'Descrição não disponível'}`,
-                    url: window.location.href,
-                  });
+                  if (
+                    typeof navigator !== 'undefined' &&
+                    typeof window !== 'undefined' &&
+                    'share' in navigator
+                  ) {
+                    navigator.share({
+                      title: `Confira o evento ${
+                        typeof event.title === 'string' ? event.title : 'Evento'
+                      }\n`,
+                      text: `\n${
+                        typeof event?.description === 'string'
+                          ? event.description
+                          : 'Descrição não disponível'
+                      }`,
+                      url: window.location.href,
+                    });
+                  }
                 }}
               >
                 <Share2 className="h-4 w-4 mr-2" />

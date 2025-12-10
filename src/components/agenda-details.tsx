@@ -103,7 +103,13 @@ export function AgendaDetails({ agendaId }: AgendaDetailsProps) {
           <p className="text-gray-600 mb-4">
             Não foi possível carregar os detalhes da agenda.
           </p>
-          <Button onClick={() => window.location.reload()}>
+          <Button
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.location.reload();
+              }
+            }}
+          >
             Tentar novamente
           </Button>
         </div>

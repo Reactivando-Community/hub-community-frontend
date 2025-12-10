@@ -105,7 +105,13 @@ export function TalkDetails({ talkId }: TalkDetailsProps) {
           <p className="text-gray-600 mb-4">
             Não foi possível carregar os detalhes da palestra.
           </p>
-          <Button onClick={() => window.location.reload()}>
+          <Button
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.location.reload();
+              }
+            }}
+          >
             Tentar novamente
           </Button>
         </div>
