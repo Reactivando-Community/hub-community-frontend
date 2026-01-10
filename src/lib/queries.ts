@@ -68,8 +68,8 @@ export const GET_COMMUNITY_BY_ID = gql`
 `;
 
 export const GET_EVENTS = gql`
-  query GetEvents($filters: EventFilter) {
-    events(filters: $filters) {
+  query GetEvents($filters: EventFilter, $sort: [EventSort]) {
+    events(filters: $filters, sort: $sort) {
       data {
         id
         documentId

@@ -22,6 +22,11 @@ export function PastEventsSection() {
       filters: debouncedSearchTerm
         ? { title: { contains: debouncedSearchTerm } }
         : {},
+      sort: [
+        {
+          createdAt: 'DESC',
+        },
+      ],
     },
   });
 
