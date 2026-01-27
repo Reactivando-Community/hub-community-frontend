@@ -21,6 +21,7 @@ import { adjustToBrazilTimezone } from '@/utils/event';
 interface TalkCardProps {
   talk: Talk;
   eventDocumentId?: string;
+  eventSlug?: string;
   agendaDocumentId?: string;
   isInAgenda?: boolean;
   onAgendaChange?: () => void;
@@ -31,6 +32,7 @@ interface TalkCardProps {
 export function TalkCard({
   talk,
   eventDocumentId,
+  eventSlug,
   agendaDocumentId,
   isInAgenda = false,
   onAgendaChange,
@@ -61,7 +63,7 @@ export function TalkCard({
 
         if (createData?.createAgenda?.documentId) {
           // Track analytics event for creating agenda
-          trackCreateAgenda(eventDocumentId!);
+          trackCreateAgenda(eventSlug || eventDocumentId!);
 
           // Adicionar talk à agenda recém-criada
           await updateAgenda({
@@ -89,7 +91,7 @@ export function TalkCard({
       onOptimisticUpdate?.(talk.documentId, true);
 
       // Track analytics event
-      trackAddTalkToAgenda(talk.documentId!, eventDocumentId!);
+      trackAddTalkToAgenda(talk.documentId!, eventSlug || eventDocumentId!);
 
       toast({
         title: 'Talk adicionada à agenda',
@@ -127,7 +129,7 @@ export function TalkCard({
       onOptimisticUpdate?.(talk.documentId, false);
 
       // Track analytics event
-      trackRemoveTalkFromAgenda(talk.documentId!, eventDocumentId!);
+      trackRemoveTalkFromAgenda(talk.documentId!, eventSlug || eventDocumentId!);
 
       toast({
         title: 'Talk removida da agenda',

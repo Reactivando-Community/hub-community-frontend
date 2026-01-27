@@ -10,6 +10,7 @@ export const GET_COMMUNITIES = gql`
         full_description
         members_quantity
         images
+        slug
         organizers {
           id
           username
@@ -37,6 +38,7 @@ export const GET_COMMUNITY_BY_ID = gql`
   query GetCommunityById($id: String!) {
     community(id: $id) {
       id
+      slug
       title
       short_description
       full_description
@@ -50,6 +52,43 @@ export const GET_COMMUNITY_BY_ID = gql`
       events {
         id
         documentId
+        slug
+        title
+        start_date
+        end_date
+      }
+      tags {
+        id
+        value
+      }
+      links {
+        id
+        name
+        url
+      }
+    }
+  }
+`;
+
+export const GET_COMMUNITY_BY_SLUG_OR_ID = gql`
+  query GetCommunityBySlugOrId($slugOrId: String!) {
+    communityBySlugOrId(slugOrId: $slugOrId) {
+      id
+      slug
+      title
+      short_description
+      full_description
+      members_quantity
+      images
+      organizers {
+        id
+        username
+        email
+      }
+      events {
+        id
+        documentId
+        slug
         title
         start_date
         end_date
@@ -73,6 +112,7 @@ export const GET_EVENTS = gql`
       data {
         id
         documentId
+        slug
         title
         description
         start_date
@@ -80,6 +120,7 @@ export const GET_EVENTS = gql`
         images
         communities {
           id
+          slug
           title
           short_description
           full_description
@@ -130,11 +171,12 @@ export const GET_TAGS = gql`
   }
 `;
 
-export const GET_EVENT_BY_ID = gql`
-  query GetEventById($eventId: String!) {
-    event(id: $eventId) {
+export const GET_EVENT_BY_SLUG_OR_ID = gql`
+  query GetEventBySlugOrId($slugOrId: String!) {
+    eventBySlugOrId(slugOrId: $slugOrId) {
       id
       documentId
+      slug
       title
       description
       start_date
@@ -143,6 +185,7 @@ export const GET_EVENT_BY_ID = gql`
       subscription_link
       communities {
         id
+        slug
         title
         short_description
         full_description
@@ -231,6 +274,7 @@ export const GET_TALK_BY_ID = gql`
         }
         communities {
           id
+          slug
           title
           short_description
           images

@@ -3,17 +3,17 @@ import { notFound } from 'next/navigation';
 import { EventDetails } from '@/components/event-details';
 
 interface EventPageProps {
-  params: {
-    id: string;
-  };
+    params: {
+        id: string;
+    };
 }
 
 export default async function EventPage({ params }: EventPageProps) {
-  const { id } = await params;
+    const { id } = await params;
 
-  if (!id) {
-    notFound();
-  }
+    if (!id) {
+        notFound();
+    }
 
-  return <EventDetails eventId={id} />;
+    return <EventDetails slugOrId={id} />;
 }

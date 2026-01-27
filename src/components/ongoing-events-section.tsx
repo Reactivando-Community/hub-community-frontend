@@ -196,7 +196,7 @@ export function OngoingEventsSection() {
             />
 
             <div className="flex justify-between items-center">
-              <Link href={`/events/${event.id}`}>
+              <Link href={`/events/${event.slug || event.id}`}>
                 <Button className="bg-green-600 hover:bg-green-700">
                   Ver Detalhes
                 </Button>

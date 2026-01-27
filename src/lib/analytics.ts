@@ -46,36 +46,36 @@ export const trackEvent = (
 };
 
 // Specific event tracking functions
-export const trackAddTalkToAgenda = (talkId: string, eventId: string) => {
+export const trackAddTalkToAgenda = (talkId: string, eventSlug: string) => {
   trackEvent(ANALYTICS_EVENTS.ADD_TALK_TO_AGENDA, {
     talk_id: talkId,
-    event_id: eventId,
+    event_slug: eventSlug,
   });
 };
 
-export const trackRemoveTalkFromAgenda = (talkId: string, eventId: string) => {
+export const trackRemoveTalkFromAgenda = (talkId: string, eventSlug: string) => {
   trackEvent(ANALYTICS_EVENTS.REMOVE_TALK_FROM_AGENDA, {
     talk_id: talkId,
-    event_id: eventId,
+    event_slug: eventSlug,
   });
 };
 
-export const trackCreateAgenda = (eventId: string) => {
+export const trackCreateAgenda = (eventSlug: string) => {
   trackEvent(ANALYTICS_EVENTS.CREATE_AGENDA, {
-    event_id: eventId,
+    event_slug: eventSlug,
   });
 };
 
-export const trackViewEventDetail = (eventId: string) => {
+export const trackViewEventDetail = (eventSlug: string) => {
   trackEvent(ANALYTICS_EVENTS.VIEW_EVENT_DETAIL, {
-    event_id: eventId,
+    event_slug: eventSlug,
   });
 };
 
-export const trackViewTalkDetail = (talkId: string, eventId?: string) => {
+export const trackViewTalkDetail = (talkId: string, eventSlug?: string) => {
   trackEvent(ANALYTICS_EVENTS.VIEW_TALK_DETAIL, {
     talk_id: talkId,
-    event_id: eventId,
+    event_slug: eventSlug,
   });
 };
 

@@ -213,7 +213,7 @@ export function EventsSection({
             />
 
             <div className="flex justify-between items-center">
-              <Link href={`/events/${event.id}`}>
+              <Link href={`/events/${event.slug || event.id}`}>
                 <Button>Ver Detalhes</Button>
               </Link>
               {isEventPast(event) ? (

@@ -2,6 +2,7 @@ import { BlocksContent } from '@strapi/blocks-react-renderer';
 
 export interface Community {
   id: string;
+  slug?: string;
   title: string;
   short_description: string | BlocksContent;
   full_description: string | BlocksContent;
@@ -15,6 +16,7 @@ export interface Community {
 
 export interface CommunityDetail {
   id: string;
+  slug?: string;
   title: string;
   short_description: string | BlocksContent;
   full_description: string | BlocksContent;
@@ -86,6 +88,7 @@ export interface EventLocation {
 export interface Event {
   id: string;
   documentId?: string;
+  slug?: string;
   title: string;
   description?: string | BlocksContent;
   start_date: string;
@@ -111,13 +114,7 @@ export interface CommunitiesResponse {
 
 export interface CommunityResponse {
   community?: CommunityDetail;
-}
-
-export interface CommunityDetail {
-  id: string;
-  title: string;
-  short_description: string | BlocksContent;
-  members_quantity: number;
+  communityBySlugOrId?: CommunityDetail;
 }
 
 export interface EventsResponse {

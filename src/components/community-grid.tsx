@@ -161,7 +161,7 @@ export function CommunityGrid({
               </div>
 
               <div className="mt-auto">
-                <Link href={`/communities/${community.id}`}>
+                <Link href={`/communities/${community.slug}`}>
                   <Button className="w-full">Ver Comunidade</Button>
                 </Link>
               </div>
