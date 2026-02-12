@@ -1,7 +1,13 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FileText, Link as LinkIcon, Printer, Upload } from 'lucide-react';
+import {
+  FileText,
+  Link as LinkIcon,
+  Plus,
+  Printer,
+  Upload,
+} from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -17,6 +23,15 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
   Form,
   FormControl,
   FormDescription,
@@ -26,6 +41,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -63,6 +79,8 @@ export default function CSVBadgePrinterPage() {
   const [headers, setHeaders] = useState<string[]>([]);
   const [fileName, setFileName] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [manualName, setManualName] = useState<string>('');
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -265,13 +283,72 @@ export default function CSVBadgePrinterPage() {
               para imprimir crachás individuais.
             </p>
           </div>
-          <Button
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Upload Arquivo
-          </Button>
+          <div className="flex items-center gap-2">
+            <Dialog
+              open={isManualModalOpen}
+              onOpenChange={setIsManualModalOpen}
+            >
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Impressão Manual
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Impressão Manual de Crachá</DialogTitle>
+                  <DialogDescription>
+                    Digite o nome do participante para gerar o crachá
+                    individualmente.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label>Nome do Participante</Label>
+                    <Input
+                      placeholder="Nome Completo"
+                      value={manualName}
+                      onChange={e => setManualName(e.target.value)}
+                    />
+                  </div>
+                  {/* Hidden QR Code for manual print */}
+                  <div id={`qr-canvas-${manualName}`} className="hidden">
+                    <QRCodeCanvas value={staticLink} size={128} />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setManualName('');
+                      setIsManualModalOpen(false);
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    disabled={!manualName}
+                    onClick={() => {
+                      handlePrint(manualName, staticLink, currentEventName);
+                      setIsManualModalOpen(false);
+                      setManualName('');
+                    }}
+                  >
+                    <Printer className="w-4 h-4 mr-2" />
+                    Imprimir
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Upload Arquivo
+            </Button>
+          </div>
           <input
             type="file"
             ref={fileInputRef}
