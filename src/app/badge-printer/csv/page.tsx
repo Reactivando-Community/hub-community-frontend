@@ -2,14 +2,18 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
+  Check,
+  Download,
   FileText,
+  History as HistoryIcon,
   Link as LinkIcon,
   Plus,
   Printer,
+  Trash2,
   Upload,
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as XLSX from 'xlsx';
 import * as z from 'zod';
@@ -71,8 +75,22 @@ const formSchema = z.object({
 });
 
 interface CSVRow {
-  [key: string]: string;
+  [key: string]: any;
+  __printed?: boolean;
 }
+
+interface HistoryItem {
+  id: string;
+  fileName: string;
+  timestamp: number;
+  data: CSVRow[];
+  headers: string[];
+  nameColumn: string;
+  eventName: string;
+  link: string;
+}
+
+const STORAGE_KEY = 'badge-printer-history-v1';
 
 export default function CSVBadgePrinterPage() {
   const [csvData, setCsvData] = useState<CSVRow[]>([]);
@@ -81,6 +99,7 @@ export default function CSVBadgePrinterPage() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [manualName, setManualName] = useState<string>('');
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -91,6 +110,68 @@ export default function CSVBadgePrinterPage() {
       nameColumn: '',
     },
   });
+
+  // Load history on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        setHistory(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error loading history:', e);
+      }
+    }
+  }, []);
+
+  // Sync history to localStorage
+  const saveHistory = (newHistory: HistoryItem[]) => {
+    setHistory(newHistory);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+  };
+
+  const addToHistory = (
+    name: string,
+    data: CSVRow[],
+    cols: string[],
+    nameCol: string
+  ) => {
+    const newItem: HistoryItem = {
+      id: crypto.randomUUID(),
+      fileName: name,
+      timestamp: Date.now(),
+      data,
+      headers: cols,
+      nameColumn: nameCol,
+      eventName: form.getValues('eventName'),
+      link: form.getValues('link'),
+    };
+    const updated = [newItem, ...history].slice(0, 10); // Keep last 10
+    saveHistory(updated);
+  };
+
+  const updateCurrentHistoryItem = (updatedData: CSVRow[]) => {
+    const currentItem = history.find(h => h.fileName === fileName);
+    if (currentItem) {
+      const updatedHistory = history.map(h =>
+        h.id === currentItem.id ? { ...h, data: updatedData } : h
+      );
+      saveHistory(updatedHistory);
+    }
+  };
+
+  const loadFromHistory = (item: HistoryItem) => {
+    setFileName(item.fileName);
+    setHeaders(item.headers);
+    setCsvData(item.data);
+    form.setValue('nameColumn', item.nameColumn);
+    form.setValue('eventName', item.eventName);
+    form.setValue('link', item.link);
+    setSearchTerm('');
+  };
+
+  const deleteHistoryItem = (id: string) => {
+    saveHistory(history.filter(h => h.id !== id));
+  };
 
   const onFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -140,11 +221,16 @@ export default function CSVBadgePrinterPage() {
         setCsvData(rows);
 
         // Auto-select "Nome" if it exists
+        let nameCol = '';
         if (headerRow.includes('Nome')) {
-          form.setValue('nameColumn', 'Nome');
+          nameCol = 'Nome';
         } else if (headerRow.includes('Name')) {
-          form.setValue('nameColumn', 'Name');
+          nameCol = 'Name';
         }
+        form.setValue('nameColumn', nameCol);
+
+        // Add to history
+        addToHistory(file.name, rows, headerRow, nameCol);
       } catch (error) {
         console.error('Error parsing file:', error);
         alert(
@@ -160,7 +246,12 @@ export default function CSVBadgePrinterPage() {
     }
   };
 
-  const handlePrint = (name: string, link: string, eventName: string) => {
+  const handlePrint = (
+    name: string,
+    link: string,
+    eventName: string,
+    rowIndex?: number
+  ) => {
     const printWindow = window.open(
       'about:blank',
       '_blank',
@@ -256,6 +347,70 @@ export default function CSVBadgePrinterPage() {
     printWindow.document.open();
     printWindow.document.write(html);
     printWindow.document.close();
+
+    // Mark as printed if it's from the list
+    if (rowIndex !== undefined) {
+      setCsvData(prevData => {
+        const newData = [...prevData];
+        newData[rowIndex] = { ...newData[rowIndex], __printed: true };
+        updateCurrentHistoryItem(newData); // We need to be careful with sync here
+        return newData;
+      });
+    }
+  };
+
+  const handleManualPrint = () => {
+    if (!manualName) return;
+
+    const nameCol = selectedNameColumn || 'Nome';
+    let currentFileName = fileName;
+    let currentHeaders = headers;
+
+    // Use a fresh state update to avoid issues with stale state
+    setCsvData(prevData => {
+      const newRow: CSVRow = { [nameCol]: manualName, __printed: true };
+      const newData = [...prevData, newRow];
+
+      if (!currentFileName) {
+        currentFileName = 'Lista Manual';
+        currentHeaders = [nameCol];
+        setFileName(currentFileName);
+        setHeaders(currentHeaders);
+        form.setValue('nameColumn', nameCol);
+        addToHistory(currentFileName, newData, currentHeaders, nameCol);
+      } else {
+        updateCurrentHistoryItem(newData);
+      }
+
+      return newData;
+    });
+
+    handlePrint(manualName, staticLink, currentEventName);
+    setIsManualModalOpen(false);
+    setManualName('');
+  };
+
+  const exportList = () => {
+    if (csvData.length === 0) return;
+
+    // Prepare data for export: replace __printed with "Sim/Não"
+    const exportData = csvData.map(row => {
+      const { __printed, ...rest } = row;
+      return {
+        ...rest,
+        'Impresso?': __printed ? 'Sim' : 'Não',
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Participantes');
+
+    // Generate filename
+    const date = new Date().toISOString().split('T')[0];
+    const exportFileName = `lista_crachas_${fileName.split('.')[0]}_${date}.xlsx`;
+
+    XLSX.writeFile(workbook, exportFileName);
   };
 
   const selectedNameColumn = form.watch('nameColumn');
@@ -326,14 +481,7 @@ export default function CSVBadgePrinterPage() {
                   >
                     Cancelar
                   </Button>
-                  <Button
-                    disabled={!manualName}
-                    onClick={() => {
-                      handlePrint(manualName, staticLink, currentEventName);
-                      setIsManualModalOpen(false);
-                      setManualName('');
-                    }}
-                  >
+                  <Button disabled={!manualName} onClick={handleManualPrint}>
                     <Printer className="w-4 h-4 mr-2" />
                     Imprimir
                   </Button>
@@ -446,6 +594,63 @@ export default function CSVBadgePrinterPage() {
             </CardContent>
           </Card>
 
+          {history.length > 0 && (
+            <Card className="lg:col-span-1 border-primary/20 bg-primary/5">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <HistoryIcon className="w-4 h-4 text-primary" />
+                    <CardTitle className="text-sm">Histórico Recente</CardTitle>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => saveHistory([])}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+                <CardDescription>
+                  Arquivos carregados recentemente.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-2">
+                  {history.map(item => (
+                    <div
+                      key={item.id}
+                      className={`group flex items-center justify-between p-2 rounded-md border text-sm transition-all cursor-pointer hover:border-primary/50 hover:shadow-sm ${fileName === item.fileName ? 'bg-background border-primary shadow-md' : 'bg-background border-border'}`}
+                      onClick={() => loadFromHistory(item)}
+                    >
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <FileText
+                          className={`w-4 h-4 flex-shrink-0 ${fileName === item.fileName ? 'text-primary' : 'text-muted-foreground'}`}
+                        />
+                        <span
+                          className={`truncate font-medium ${fileName === item.fileName ? 'text-primary' : 'text-foreground'}`}
+                        >
+                          {item.fileName}
+                        </span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
+                        onClick={e => {
+                          e.stopPropagation();
+                          deleteHistoryItem(item.id);
+                        }}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle>Lista de Participantes</CardTitle>
@@ -456,22 +661,33 @@ export default function CSVBadgePrinterPage() {
             <CardContent>
               {csvData.length > 0 ? (
                 <div className="space-y-4">
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Pesquisar por nome..."
-                      value={searchTerm}
-                      onChange={e => setSearchTerm(e.target.value)}
-                      className="flex-1"
-                    />
-                    {searchTerm && (
-                      <Button
-                        variant="ghost"
-                        onClick={() => setSearchTerm('')}
-                        className="text-muted-foreground"
-                      >
-                        Resetar
-                      </Button>
-                    )}
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1 flex gap-2">
+                      <Input
+                        placeholder="Pesquisar por nome..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className="flex-1"
+                      />
+                      {searchTerm && (
+                        <Button
+                          variant="ghost"
+                          onClick={() => setSearchTerm('')}
+                          className="text-muted-foreground"
+                        >
+                          Resetar
+                        </Button>
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={exportList}
+                      className="whitespace-nowrap"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Baixar Lista Atualizada
+                    </Button>
                   </div>
 
                   <div className="rounded-md border overflow-hidden">
@@ -489,14 +705,28 @@ export default function CSVBadgePrinterPage() {
                           const name = selectedNameColumn
                             ? String(row[selectedNameColumn] || '')
                             : '';
+                          const isPrinted = !!row.__printed;
+
                           return (
-                            <TableRow key={index}>
+                            <TableRow
+                              key={index}
+                              className={
+                                isPrinted
+                                  ? 'bg-muted/50 text-muted-foreground transition-colors'
+                                  : ''
+                              }
+                            >
                               <TableCell className="font-medium">
-                                {name || (
-                                  <span className="text-muted-foreground italic">
-                                    Vazio
-                                  </span>
-                                )}
+                                <div className="flex items-center gap-2">
+                                  {isPrinted && (
+                                    <Check className="w-3 h-3 text-green-600" />
+                                  )}
+                                  {name || (
+                                    <span className="text-muted-foreground italic">
+                                      Vazio
+                                    </span>
+                                  )}
+                                </div>
                               </TableCell>
                               <TableCell className="text-right">
                                 <div className="flex justify-end items-center gap-2">
@@ -517,11 +747,14 @@ export default function CSVBadgePrinterPage() {
                                       handlePrint(
                                         name,
                                         staticLink,
-                                        currentEventName
+                                        currentEventName,
+                                        csvData.indexOf(row) // Use index from original data for correct tracking
                                       )
                                     }
                                   >
-                                    <Printer className="w-4 h-4" />
+                                    <Printer
+                                      className={`${isPrinted ? 'text-green-600' : ''} w-4 h-4`}
+                                    />
                                   </Button>
                                 </div>
                               </TableCell>
