@@ -46,6 +46,9 @@ const formSchema = z.object({
   link: z.string().url({
     message: 'Insira um link válido.',
   }),
+  eventName: z.string().min(1, {
+    message: 'Insira o nome do evento ou comunidade.',
+  }),
   nameColumn: z.string().min(1, {
     message: 'Selecione a coluna que contém o nome.',
   }),
@@ -59,12 +62,14 @@ export default function CSVBadgePrinterPage() {
   const [csvData, setCsvData] = useState<CSVRow[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [fileName, setFileName] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       link: 'https://joincommunity.com.br',
+      eventName: 'Reactivando',
       nameColumn: '',
     },
   });
@@ -74,6 +79,7 @@ export default function CSVBadgePrinterPage() {
     if (!file) return;
 
     setFileName(file.name);
+    setSearchTerm(''); // Reset search on new upload
     const reader = new FileReader();
 
     reader.onload = e => {
@@ -136,7 +142,7 @@ export default function CSVBadgePrinterPage() {
     }
   };
 
-  const handlePrint = (name: string, link: string) => {
+  const handlePrint = (name: string, link: string, eventName: string) => {
     const printWindow = window.open(
       'about:blank',
       '_blank',
@@ -188,7 +194,7 @@ export default function CSVBadgePrinterPage() {
               flex: 1;
               padding-right: 5mm;
             }
-            .logo-text { font-size: 10pt; font-weight: 800; letter-spacing: 1px; color: black; }
+            .logo-text { font-size: 10pt; font-weight: 800; letter-spacing: 1px; color: black; text-transform: uppercase; }
             .name-text {
               font-size: 18pt;
               font-weight: 900;
@@ -199,7 +205,6 @@ export default function CSVBadgePrinterPage() {
               word-wrap: break-word;
               max-width: 60mm;
             }
-            .link-text { font-size: 7.5pt; color: #000; margin: 0; word-break: break-all; max-width: 60mm; font-weight: 600; }
             .qr-section { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2mm; }
             .qr-image { display: block; width: 32mm; height: 32mm; }
             .label-info { font-size: 6pt; color: #000; text-transform: uppercase; font-weight: bold; }
@@ -209,16 +214,14 @@ export default function CSVBadgePrinterPage() {
         <body>
           <div class="badge-container">
             <div class="info-section">
-              <div class="logo-text">COMUNIDADE</div>
+              <div class="logo-text">${eventName}</div>
               <div class="badge-main">
                 <h1 class="name-text">${name}</h1>
                 <div class="separator"></div>
-                <p class="link-text">${link}</p>
               </div>
             </div>
             <div class="qr-section">
               <img src="${qrDataUrl}" class="qr-image" />
-              <div class="label-info">100MM X 50MM</div>
             </div>
           </div>
           <script>
@@ -239,6 +242,15 @@ export default function CSVBadgePrinterPage() {
 
   const selectedNameColumn = form.watch('nameColumn');
   const staticLink = form.watch('link');
+  const currentEventName = form.watch('eventName');
+
+  const filteredData = csvData.filter(row => {
+    if (!searchTerm) return true;
+    const name = selectedNameColumn
+      ? String(row[selectedNameColumn] || '')
+      : '';
+    return name.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   return (
     <main className="container mx-auto py-10 px-4 min-h-screen">
@@ -274,12 +286,26 @@ export default function CSVBadgePrinterPage() {
             <CardHeader>
               <CardTitle>Configurações</CardTitle>
               <CardDescription>
-                Configure o link do QR Code e o mapeamento dos campos.
+                Configure o link do QR Code e o nome do evento.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
                 <div className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="eventName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nome do Evento/Comunidade</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: Reactivando" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="link"
@@ -352,53 +378,89 @@ export default function CSVBadgePrinterPage() {
             </CardHeader>
             <CardContent>
               {csvData.length > 0 ? (
-                <div className="rounded-md border overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nome</TableHead>
-                        <TableHead className="w-[100px] text-right">
-                          Ações
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {csvData.map((row, index) => {
-                        const name = selectedNameColumn
-                          ? String(row[selectedNameColumn] || '')
-                          : '';
-                        return (
-                          <TableRow key={index}>
-                            <TableCell className="font-medium">
-                              {name || (
-                                <span className="text-muted-foreground italic">
-                                  Vazio
-                                </span>
-                              )}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex justify-end items-center gap-2">
-                                <div
-                                  id={`qr-canvas-${name}`}
-                                  className="hidden"
-                                >
-                                  <QRCodeCanvas value={staticLink} size={128} />
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Pesquisar por nome..."
+                      value={searchTerm}
+                      onChange={e => setSearchTerm(e.target.value)}
+                      className="flex-1"
+                    />
+                    {searchTerm && (
+                      <Button
+                        variant="ghost"
+                        onClick={() => setSearchTerm('')}
+                        className="text-muted-foreground"
+                      >
+                        Resetar
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="rounded-md border overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Nome</TableHead>
+                          <TableHead className="w-[100px] text-right">
+                            Ações
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredData.map((row, index) => {
+                          const name = selectedNameColumn
+                            ? String(row[selectedNameColumn] || '')
+                            : '';
+                          return (
+                            <TableRow key={index}>
+                              <TableCell className="font-medium">
+                                {name || (
+                                  <span className="text-muted-foreground italic">
+                                    Vazio
+                                  </span>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end items-center gap-2">
+                                  <div
+                                    id={`qr-canvas-${name}`}
+                                    className="hidden"
+                                  >
+                                    <QRCodeCanvas
+                                      value={staticLink}
+                                      size={128}
+                                    />
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    disabled={!name || !selectedNameColumn}
+                                    onClick={() =>
+                                      handlePrint(
+                                        name,
+                                        staticLink,
+                                        currentEventName
+                                      )
+                                    }
+                                  >
+                                    <Printer className="w-4 h-4" />
+                                  </Button>
                                 </div>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  disabled={!name || !selectedNameColumn}
-                                  onClick={() => handlePrint(name, staticLink)}
-                                >
-                                  <Printer className="w-4 h-4" />
-                                </Button>
-                              </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                        {filteredData.length === 0 && (
+                          <TableRow>
+                            <TableCell colSpan={2} className="h-24 text-center">
+                              Nenhum participante encontrado.
                             </TableCell>
                           </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-lg">
