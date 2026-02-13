@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
+  BarChart3,
   Check,
   Download,
   FileText,
@@ -12,6 +13,7 @@ import {
   Trash2,
   Upload,
 } from 'lucide-react';
+import Link from 'next/link';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -77,6 +79,7 @@ const formSchema = z.object({
 interface CSVRow {
   [key: string]: any;
   __printed?: boolean;
+  __manual?: boolean;
 }
 
 interface HistoryItem {
@@ -368,7 +371,11 @@ export default function CSVBadgePrinterPage() {
 
     // Use a fresh state update to avoid issues with stale state
     setCsvData(prevData => {
-      const newRow: CSVRow = { [nameCol]: manualName, __printed: true };
+      const newRow: CSVRow = {
+        [nameCol]: manualName,
+        __printed: true,
+        __manual: true,
+      };
       const newData = [...prevData, newRow];
 
       if (!currentFileName) {
@@ -424,6 +431,10 @@ export default function CSVBadgePrinterPage() {
       : '';
     return name.toLowerCase().includes(searchTerm.toLowerCase());
   });
+
+  const totalCount = csvData.length;
+  const printedCount = csvData.filter(row => row.__printed).length;
+  const manualCount = csvData.filter(row => row.__manual).length;
 
   return (
     <main className="container mx-auto py-10 px-4 min-h-screen">
@@ -633,17 +644,29 @@ export default function CSVBadgePrinterPage() {
                           {item.fileName}
                         </span>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
-                        onClick={e => {
-                          e.stopPropagation();
-                          deleteHistoryItem(item.id);
-                        }}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Link href={`/badge-printer/history/${item.id}`}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-primary"
+                            onClick={e => e.stopPropagation()}
+                          >
+                            <BarChart3 className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
+                          onClick={e => {
+                            e.stopPropagation();
+                            deleteHistoryItem(item.id);
+                          }}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -659,6 +682,31 @@ export default function CSVBadgePrinterPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-muted/50 p-3 rounded-lg border border-border/50 text-center">
+                  <div className="text-2xl font-bold">{totalCount}</div>
+                  <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+                    Total
+                  </div>
+                </div>
+                <div className="bg-green-500/10 p-3 rounded-lg border border-green-500/20 text-center">
+                  <div className="text-2xl font-bold text-green-700">
+                    {printedCount}
+                  </div>
+                  <div className="text-[10px] uppercase font-bold text-green-600 tracking-wider">
+                    Impressos
+                  </div>
+                </div>
+                <div className="bg-blue-500/10 p-3 rounded-lg border border-blue-500/20 text-center">
+                  <div className="text-2xl font-bold text-blue-700">
+                    {manualCount}
+                  </div>
+                  <div className="text-[10px] uppercase font-bold text-blue-600 tracking-wider">
+                    Manuais
+                  </div>
+                </div>
+              </div>
+
               {csvData.length > 0 ? (
                 <div className="space-y-4">
                   <div className="flex flex-col sm:flex-row gap-4">
