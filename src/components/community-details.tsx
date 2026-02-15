@@ -387,9 +387,10 @@ export function CommunityDetails({ slugOrId }: CommunityDetailsProps) {
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {community.organizers.map(organizer => (
-                                        <div
+                                        <Link
                                             key={organizer.id}
-                                            className="flex items-center gap-3 p-3 border rounded-lg"
+                                            href={`/users/${organizer.username}`}
+                                            className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                                         >
                                             {/* <Image
                         src={organizer.avatar || '/placeholder.svg'}
@@ -400,12 +401,15 @@ export function CommunityDetails({ slugOrId }: CommunityDetailsProps) {
                         unoptimized
                       /> */}
                                             <div>
-                                                <h4 className="font-semibold">{organizer.username}</h4>
+                                                <h4 className="font-semibold hover:text-blue-600">
+                                                    {organizer.username}
+                                                </h4>
                                                 <p className="text-sm text-gray-600">
-                                                    {organizer.role || 'Organizador'}
+                                                    {organizer.role ||
+                                                        'Organizador'}
                                                 </p>
                                             </div>
-                                        </div>
+                                        </Link>
                                     ))}
                                 </div>
                             </CardContent>

@@ -195,6 +195,18 @@ export interface AuthContextType extends AuthState {
   hideLogoutAlert: () => void;
 }
 
+// Public user profile (matches userByUsername API)
+export interface UserProfile {
+  username: string;
+  email?: string;
+  speaker?: { avatar?: string };
+  agenda?: { event: { title: string; images?: string[] } }[];
+}
+
+export interface UserProfileResponse {
+  userByUsername?: UserProfile | null;
+}
+
 // Agenda Types
 export interface AgendaEvent {
   documentId: string;
