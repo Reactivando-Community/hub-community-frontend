@@ -109,13 +109,18 @@ export interface Event {
 }
 
 export interface Batch {
-  enabled: boolean;
-  max_quantity: number;
+  id?: string;
+  batch_number: number;
+  value: number;
+  max_quantity?: number;
   valid_from: string;
   valid_until: string;
+  enabled: boolean;
+  half_price_eligible: boolean;
 }
 
 export interface Product {
+  id?: string;
   enabled: boolean;
   name: string;
   batches: Batch[];

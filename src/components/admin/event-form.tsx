@@ -1,6 +1,11 @@
 'use client';
 
+import { CommunityFormDialog } from '@/components/admin/community-form-dialog';
+import { LocationFormDialog } from '@/components/admin/location-form-dialog';
+import { ProductFormDialog } from '@/components/admin/product-form-dialog';
+import { TalkFormDialog } from '@/components/admin/talk-form-dialog';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import {
   Form,
   FormControl,
@@ -12,11 +17,14 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Community, EventLocation, Product, Talk } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Calendar, MapPin, Plus, User as UserIcon, Users } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-// import { CommentData } from '@/lib/types';
-import { useRouter } from 'next/navigation';
 
 const eventSchema = z.object({
   title: z.string().min(2, {
@@ -36,6 +44,10 @@ const eventSchema = z.object({
   }),
   pixai_token_integration: z.string().optional(),
   description: z.any().optional(), // Complex type, validating as any for now
+  location: z.any().optional(), // Store the location object or ID
+  communityId: z.string().optional(),
+  talks: z.array(z.any()).optional(),
+  products: z.array(z.any()).optional(),
 });
 
 type EventFormValues = z.infer<typeof eventSchema>;
@@ -46,6 +58,34 @@ interface EventFormProps {
   isLoading?: boolean;
 }
 
+// Mock locations for now, in valid implementation this would come from API
+const MOCK_LOCATIONS: { label: string; value: string; data: EventLocation }[] =
+  [
+    {
+      label: 'Centro de Convenções Goiânia',
+      value: 'loc-1',
+      data: {
+        title: 'Centro de Convenções Goiânia',
+        city: 'Goiânia',
+        region: 'GO',
+        full_address: 'Rua 4, Centro',
+      },
+    },
+  ];
+
+// Mock communities
+const MOCK_COMMUNITIES: {
+  label: string;
+  value: string;
+  data: Partial<Community>;
+}[] = [
+  {
+    label: 'React Brasil',
+    value: 'comm-1',
+    data: { id: 'comm-1', title: 'React Brasil', slug: 'react-brasil' },
+  },
+];
+
 export function EventForm({
   initialData,
   onSubmit,
@@ -53,6 +93,26 @@ export function EventForm({
 }: EventFormProps) {
   const router = useRouter();
   const isEditing = !!initialData?.documentId;
+
+  // Location State
+  const [locations, setLocations] = useState(MOCK_LOCATIONS);
+  const [selectedLocationId, setSelectedLocationId] = useState<
+    string | undefined
+  >(initialData?.location?.id);
+
+  // Community State
+  const [communities, setCommunities] = useState(MOCK_COMMUNITIES);
+  const [selectedCommunityId, setSelectedCommunityId] = useState<
+    string | undefined
+  >(initialData?.communityId);
+
+  // Talks State
+  const [talks, setTalks] = useState<Talk[]>(initialData?.talks || []);
+
+  // Products State
+  const [products, setProducts] = useState<Product[]>(
+    initialData?.products || []
+  );
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
@@ -64,6 +124,10 @@ export function EventForm({
       max_slots: 0,
       pixai_token_integration: '',
       description: [],
+      location: undefined,
+      communityId: undefined,
+      talks: [],
+      products: [],
     },
   });
 
@@ -78,162 +142,449 @@ export function EventForm({
     form.setValue('slug', slug);
   };
 
+  // Location Handlers
+  const handleAddLocation = (newLocation: EventLocation) => {
+    const id = `new-loc-${Date.now()}`;
+    const locationOption = {
+      label: newLocation.title || 'Novo Local',
+      value: id,
+      data: newLocation,
+    };
+    setLocations([...locations, locationOption]);
+    setSelectedLocationId(id);
+    form.setValue('location', newLocation);
+  };
+
+  const handleLocationSelect = (id: string) => {
+    setSelectedLocationId(id);
+    const loc = locations.find(l => l.value === id);
+    if (loc) {
+      form.setValue('location', loc.data);
+    }
+  };
+
+  // Community Handlers
+  const handleAddCommunity = (newCommunity: any) => {
+    const id = newCommunity.id;
+    const commOption = {
+      label: newCommunity.title,
+      value: id,
+      data: newCommunity,
+    };
+    setCommunities([...communities, commOption]);
+    setSelectedCommunityId(id);
+    form.setValue('communityId', id);
+  };
+
+  const handleCommunitySelect = (id: string) => {
+    setSelectedCommunityId(id);
+    form.setValue('communityId', id);
+  };
+
+  // Talk Handlers
+  const handleAddTalk = (newTalk: any) => {
+    const talkWithId = { ...newTalk, id: newTalk.id || `talk-${Date.now()}` };
+    const updatedTalks = [...talks, talkWithId];
+    setTalks(updatedTalks);
+    form.setValue('talks', updatedTalks);
+  };
+
+  // Product Handlers
+  const handleAddProduct = (newProduct: any) => {
+    const prod = { ...newProduct, id: newProduct.id || `prod-${Date.now()}` };
+    const updatedProducts = [...products, prod];
+    setProducts(updatedProducts);
+    form.setValue('products', updatedProducts);
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Título do Evento</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ex: Workshop de React"
-                    {...field}
-                    onChange={e => {
-                      field.onChange(e);
-                      // Optional: auto-generate slug capability could be added here
-                    }}
+        <Tabs defaultValue="general" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="general">Geral</TabsTrigger>
+            <TabsTrigger value="schedule">Programação</TabsTrigger>
+            <TabsTrigger value="products">Produtos & Lotes</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="general" className="space-y-6 mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Título do Evento</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Ex: Workshop de React"
+                        {...field}
+                        onChange={e => {
+                          field.onChange(e);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Slug (URL amigável)</FormLabel>
+                    <div className="flex gap-2">
+                      <FormControl>
+                        <Input
+                          placeholder="ex-workshop-de-react"
+                          {...field}
+                          disabled={isEditing}
+                        />
+                      </FormControl>
+                      {isEditing ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() =>
+                            window.open(
+                              `/events/${field.value || initialData?.slug}`,
+                              '_blank'
+                            )
+                          }
+                        >
+                          Ver página
+                        </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={generateSlug}
+                        >
+                          Gerar
+                        </Button>
+                      )}
+                    </div>
+                    <FormDescription>
+                      Url que será usada para acessar o evento.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <FormField
+                control={form.control}
+                name="start_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Data de Início</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="datetime-local"
+                        className="block"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="end_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Data de Término</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="datetime-local"
+                        className="block"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="max_slots"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Vagas Máximas</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={1} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Location Section */}
+            <div className="space-y-4 rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <FormLabel className="text-base font-semibold">
+                  Local do Evento
+                </FormLabel>
+                <LocationFormDialog
+                  onSave={handleAddLocation}
+                  trigger={
+                    <Button type="button" variant="outline" size="sm">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Novo Local
+                    </Button>
+                  }
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormItem className="flex-1">
+                  <FormLabel>Selecionar Local</FormLabel>
+                  <Combobox
+                    options={locations}
+                    value={selectedLocationId}
+                    onSelect={handleLocationSelect}
+                    placeholder="Selecione um local..."
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                </FormItem>
+                {selectedLocationId &&
+                  (() => {
+                    const loc = locations.find(
+                      l => l.value === selectedLocationId
+                    )?.data;
+                    return loc ? (
+                      <div className="text-sm text-muted-foreground pt-8">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          <span>
+                            {loc.city}/{loc.region} - {loc.full_address}
+                          </span>
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+              </div>
+            </div>
 
-          <FormField
-            control={form.control}
-            name="slug"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Slug (URL amigável)</FormLabel>
-                <div className="flex gap-2">
-                  <FormControl>
-                    <Input
-                      placeholder="ex-workshop-de-react"
-                      {...field}
-                      disabled={isEditing}
-                    />
-                  </FormControl>
-                  {isEditing ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() =>
-                        window.open(
-                          `/events/${field.value || initialData?.slug}`,
-                          '_blank'
-                        )
-                      }
-                    >
-                      Ver página
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={generateSlug}
-                    >
-                      Gerar
-                    </Button>
-                  )}
-                </div>
-                <FormDescription>
-                  Url que será usada para acessar o evento.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
+            {!isEditing && (
+              <FormField
+                control={form.control}
+                name="pixai_token_integration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Token de Integração Pix Aí</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Token do Pix Aí" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Insira o token de integração do Pix Aí.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
-          />
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FormField
-            control={form.control}
-            name="start_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data de Início</FormLabel>
-                <FormControl>
-                  <Input type="datetime-local" className="block" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="end_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data de Término</FormLabel>
-                <FormControl>
-                  <Input type="datetime-local" className="block" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="max_slots"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Vagas Máximas</FormLabel>
-                <FormControl>
-                  <Input type="number" min={1} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {!isEditing && (
             <FormField
               control={form.control}
-              name="pixai_token_integration"
+              name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Token de Integração Pix Aí</FormLabel>
+                  <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Input placeholder="Token do Pix Aí" {...field} />
+                    <RichTextEditor
+                      value={Array.isArray(field.value) ? field.value : []}
+                      onChange={field.onChange}
+                      placeholder="Descreva os detalhes do evento..."
+                    />
                   </FormControl>
-                  <FormDescription>
-                    Insira o token de integração do Pix Aí.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          )}
-        </div>
+          </TabsContent>
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Descrição</FormLabel>
-              <FormControl>
-                {/* 
-                  TODO: The RichTextEditor expects CommentData[] but we might need to handle 
-                  conversion if the API returns something else for existing events.
-                  For now assuming it matches or we default to empty array.
-                */}
-                <RichTextEditor
-                  value={Array.isArray(field.value) ? field.value : []}
-                  onChange={field.onChange}
-                  placeholder="Descreva os detalhes do evento..."
+          <TabsContent value="schedule" className="space-y-6 mt-6">
+            {/* Community Section */}
+            <div className="space-y-4 rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <FormLabel className="text-base font-semibold">
+                  Comunidade
+                </FormLabel>
+                <CommunityFormDialog
+                  onSave={handleAddCommunity}
+                  trigger={
+                    <Button type="button" variant="outline" size="sm">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Nova Comunidade
+                    </Button>
+                  }
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormItem className="flex-1">
+                  <FormLabel>Selecionar Comunidade</FormLabel>
+                  <Combobox
+                    options={communities}
+                    value={selectedCommunityId}
+                    onSelect={handleCommunitySelect}
+                    placeholder="Selecione uma comunidade..."
+                  />
+                </FormItem>
+                {selectedCommunityId &&
+                  (() => {
+                    const comm = communities.find(
+                      c => c.value === selectedCommunityId
+                    )?.data;
+                    return comm ? (
+                      <div className="text-sm text-muted-foreground pt-8">
+                        <div className="flex items-center gap-1">
+                          <Users className="h-4 w-4" />
+                          <span>
+                            {comm.title} ({comm.slug})
+                          </span>
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+              </div>
+            </div>
+
+            {/* Talks Section */}
+            <div className="space-y-4 rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <FormLabel className="text-base font-semibold">
+                  Palestras (Talks)
+                </FormLabel>
+                <TalkFormDialog
+                  onSave={handleAddTalk}
+                  trigger={
+                    <Button type="button" variant="outline" size="sm">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Nova Palestra
+                    </Button>
+                  }
+                />
+              </div>
+
+              {talks.length === 0 ? (
+                <div className="text-sm text-muted-foreground text-center py-8 border border-dashed rounded-md">
+                  Nenhuma palestra cadastrada.
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {talks.map(talk => (
+                    <div
+                      key={talk.id}
+                      className="flex items-start justify-between border p-4 rounded-md"
+                    >
+                      <div>
+                        <h4 className="font-semibold">{talk.title}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {talk.subtitle}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                          <Calendar className="h-3 w-3" />
+                          <span>{talk.occur_date}</span>
+                          {talk.speakers?.map(s => (
+                            <div
+                              key={s.id}
+                              className="flex items-center gap-1 ml-2"
+                            >
+                              <UserIcon className="h-3 w-3" />
+                              <span>{s.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm">
+                        Editar
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="products" className="space-y-6 mt-6">
+            <div className="space-y-4 rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <FormLabel className="text-base font-semibold">
+                  Produtos & Lotes
+                </FormLabel>
+                <ProductFormDialog
+                  onSave={handleAddProduct}
+                  trigger={
+                    <Button type="button" variant="outline" size="sm">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Novo Produto
+                    </Button>
+                  }
+                />
+              </div>
+
+              {products.length === 0 ? (
+                <div className="text-sm text-muted-foreground text-center py-8 border border-dashed rounded-md">
+                  Nenhum produto cadastrado.
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {products.map(product => (
+                    <div
+                      key={product.id || product.name}
+                      className="border p-4 rounded-md"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h4 className="font-semibold flex items-center gap-2">
+                            {product.name}
+                            {!product.enabled && (
+                              <span className="text-xs bg-muted px-2 py-0.5 rounded text-muted-foreground">
+                                Inativo
+                              </span>
+                            )}
+                          </h4>
+                        </div>
+                        <Button variant="ghost" size="sm">
+                          Editar
+                        </Button>
+                      </div>
+
+                      {product.batches && product.batches.length > 0 ? (
+                        <div className="mt-2 space-y-1">
+                          {product.batches.map((batch: any, index: number) => (
+                            <div
+                              key={index}
+                              className="text-sm text-muted-foreground flex items-center gap-2"
+                            >
+                              <div className="w-2 h-2 rounded-full bg-primary/50" />
+                              <span>
+                                Lote {batch.batch_number}: R$ {batch.value} (
+                                {batch.max_quantity || 'Ilimitado'} un.)
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-xs text-muted-foreground mt-1 italic">
+                          Sem lotes configurados
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={() => router.back()}>

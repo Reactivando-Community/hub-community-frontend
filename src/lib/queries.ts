@@ -143,9 +143,6 @@ export const GET_EVENTS = gql`
           google_maps_url
           full_address
           city
-          events {
-            title
-          }
         }
       }
     }
