@@ -95,6 +95,7 @@ export interface Event {
   end_date: string;
   images?: string[];
   subscription_link?: string;
+  pixai_token_integration?: string;
   communities: {
     id: string;
     title: string;
@@ -104,6 +105,20 @@ export interface Event {
   }[];
   talks: Talk[];
   location?: EventLocation;
+  products?: Product[];
+}
+
+export interface Batch {
+  enabled: boolean;
+  max_quantity: number;
+  valid_from: string;
+  valid_until: string;
+}
+
+export interface Product {
+  enabled: boolean;
+  name: string;
+  batches: Batch[];
 }
 
 export interface CommunitiesResponse {
@@ -284,5 +299,39 @@ export interface CreateCommentResponse {
 export interface CommentsResponse {
   comments: {
     data: Comment[];
+  };
+}
+
+export interface EventInput {
+  title: string;
+  slug: string;
+  description?: string | BlocksContent;
+  start_date: string;
+  end_date: string;
+  max_slots?: number;
+  pixai_token_integration?: string;
+  // products?: string[]; // IDs of products
+  // communities?: string[]; // IDs of communities
+}
+
+export interface CreateEventResponse {
+  createEvent: {
+    documentId: string;
+    title: string;
+    slug: string;
+  };
+}
+
+export interface UpdateEventResponse {
+  updateEvent: {
+    documentId: string;
+    title: string;
+    slug: string;
+  };
+}
+
+export interface DeleteEventResponse {
+  deleteEvent: {
+    documentId: string;
   };
 }

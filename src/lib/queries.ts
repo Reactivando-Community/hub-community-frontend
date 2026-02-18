@@ -391,3 +391,32 @@ export const GET_USER_BY_USERNAME = gql`
     }
   }
 `;
+
+// Event Management Mutations
+export const CREATE_EVENT = gql`
+  mutation CreateEvent($data: EventInput!) {
+    createEvent(data: $data) {
+      documentId
+      title
+      slug
+    }
+  }
+`;
+
+export const UPDATE_EVENT = gql`
+  mutation UpdateEvent($documentId: ID!, $data: EventInput!) {
+    updateEvent(documentId: $documentId, data: $data) {
+      documentId
+      title
+      slug
+    }
+  }
+`;
+
+export const DELETE_EVENT = gql`
+  mutation DeleteEvent($documentId: ID!) {
+    deleteEvent(documentId: $documentId) {
+      documentId
+    }
+  }
+`;

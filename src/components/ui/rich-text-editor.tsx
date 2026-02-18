@@ -103,7 +103,7 @@ export function RichTextEditor({
   return (
     <div className={cn('space-y-2', className)}>
       {/* Formatting Toolbar */}
-      <div className="flex gap-1 p-2 bg-gray-50 rounded-t-lg border">
+      <div className="flex gap-1 p-2 bg-muted/50 rounded-t-lg border border-b-0">
         <Button
           type="button"
           variant="ghost"
@@ -142,7 +142,7 @@ export function RichTextEditor({
         onChange={e => handleTextChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
-        className="min-h-[120px] resize-y border-t-0 rounded-t-none"
+        className="min-h-[120px] resize-y rounded-t-none"
         rows={4}
       />
 
