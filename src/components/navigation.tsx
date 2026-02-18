@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { AuthModal } from '@/components/auth-modal';
+import { ModeToggle } from '@/components/mode-toggle';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
 
@@ -65,6 +66,7 @@ export function Navigation() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
+            <ModeToggle />
             {isAuthenticated ? (
               <>
                 <Link href="/profile">
@@ -170,6 +172,9 @@ export function Navigation() {
                   </Button> */}
                 </div>
               )}
+              <div className="pt-4 flex justify-center">
+                <ModeToggle />
+              </div>
             </div>
           </div>
         )}

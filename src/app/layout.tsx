@@ -7,6 +7,7 @@ import { FirebaseProvider } from '@/components/firebase-provider';
 import { Footer } from '@/components/footer';
 import { LogoutModalWrapper } from '@/components/logout-modal-wrapper';
 import { Navigation } from '@/components/navigation';
+import { ThemeProvider } from '@/components/theme-provider';
 import { AgendaProvider } from '@/contexts/agenda-context';
 import { AuthProvider } from '@/contexts/auth-context';
 import { FilterProvider } from '@/contexts/filter-context';
@@ -29,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <body className={inter.className}>
         <FirebaseProvider>
           <ApolloProviderWrapper>
@@ -37,9 +38,16 @@ export default function RootLayout({
               <LogoutModalWrapper />
               <AgendaProvider>
                 <FilterProvider>
-                  <Navigation />
-                  {children}
-                  <Footer />
+                  <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                  >
+                    <Navigation />
+                    {children}
+                    <Footer />
+                  </ThemeProvider>
                 </FilterProvider>
               </AgendaProvider>
             </AuthProvider>
