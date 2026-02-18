@@ -1,4 +1,4 @@
-import { Github, Linkedin, Mail, Twitter } from 'lucide-react';
+import { Github, Linkedin } from 'lucide-react';
 import Link from 'next/link';
 
 export function Footer() {
@@ -14,10 +14,20 @@ export function Footer() {
               Brasil.
             </p>
             <div className="flex space-x-4">
-              <Github className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
-              <Twitter className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
-              <Linkedin className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
-              <Mail className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
+              <a
+                target="blank"
+                href="https://github.com/reactivando-Community/"
+              >
+                <Github className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
+              </a>
+              {/* <Twitter className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" /> */}
+              <a
+                target="blank"
+                href="https://www.linkedin.com/company/reactivando/posts/?feedView=all"
+              >
+                <Linkedin className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
+              </a>
+              {/* <Mail className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" /> */}
             </div>
           </div>
 
