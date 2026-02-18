@@ -21,7 +21,7 @@ export function Navigation() {
   };
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm sticky top-0 z-50 border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -40,25 +40,25 @@ export function Navigation() {
           <div className="hidden md:flex items-center space-x-8">
             <Link
               href="/"
-              className="text-gray-700 hover:text-blue-600 transition-colors"
+              className="text-muted-foreground hover:text-primary transition-colors"
             >
               Início
             </Link>
             <Link
               href="/communities"
-              className="text-gray-700 hover:text-blue-600 transition-colors"
+              className="text-muted-foreground hover:text-primary transition-colors"
             >
               Comunidades
             </Link>
             <Link
               href="/events"
-              className="text-gray-700 hover:text-blue-600 transition-colors"
+              className="text-muted-foreground hover:text-primary transition-colors"
             >
               Eventos
             </Link>
             <Link
               href="/about"
-              className="text-gray-700 hover:text-blue-600 transition-colors"
+              className="text-muted-foreground hover:text-primary transition-colors"
             >
               Sobre
             </Link>
@@ -102,32 +102,32 @@ export function Navigation() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t">
+          <div className="md:hidden py-4 border-t border-border bg-background">
             <div className="flex flex-col space-y-4">
               <Link
                 href="/"
-                className="text-gray-700 hover:text-blue-600 transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Início
               </Link>
               <Link
                 href="/communities"
-                className="text-gray-700 hover:text-blue-600 transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Comunidades
               </Link>
               <Link
                 href="/events"
-                className="text-gray-700 hover:text-blue-600 transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Eventos
               </Link>
               <Link
                 href="/about"
-                className="text-gray-700 hover:text-blue-600 transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Sobre

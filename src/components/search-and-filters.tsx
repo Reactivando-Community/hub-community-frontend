@@ -22,10 +22,10 @@ export function SearchAndFilters() {
   const hasActiveFilters = searchTerm || selectedTags.length > 0;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-12">
+    <div className="bg-card rounded-lg shadow-md p-6 mb-12 border">
       <div className="flex flex-col lg:flex-row gap-4 mb-6">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
           <Input
             placeholder="Buscar por nome da comunidade ou evento..."
             value={searchTerm}
@@ -50,7 +50,7 @@ export function SearchAndFilters() {
           <Badge
             key={tag.id}
             variant={selectedTags.includes(tag?.value) ? 'default' : 'outline'}
-            className="cursor-pointer hover:bg-blue-100"
+            className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
             onClick={() => toggleTag(tag?.value)}
           >
             {tag?.value}
@@ -59,9 +59,11 @@ export function SearchAndFilters() {
       </div>
 
       {hasActiveFilters && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="mt-4 pt-4 border-t border-border">
           <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-gray-600">Filtros ativos:</span>
+            <span className="text-sm text-muted-foreground">
+              Filtros ativos:
+            </span>
             {searchTerm && (
               <Badge variant="secondary" className="text-sm">
                 Busca: &quot;{searchTerm}&quot;
