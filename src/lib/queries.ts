@@ -373,3 +373,21 @@ export const GET_COMMENTS = gql`
     }
   }
 `;
+
+export const GET_USER_BY_USERNAME = gql`
+  query UserByUsername($username: String!) {
+    userByUsername(username: $username) {
+      username
+      email
+      speaker {
+        avatar
+      }
+      agenda {
+        event {
+          title
+          images
+        }
+      }
+    }
+  }
+`;
