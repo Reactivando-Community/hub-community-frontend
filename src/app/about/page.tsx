@@ -308,7 +308,72 @@ export default function AboutPage() {
                       <Github className="h-5 w-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
                     </a>
                     <a
-                      href="http://linkedin.com/in/lucashenriqueblemos"
+                      href="https://linkedin.com/in/lucashenriqueblemos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Linkedin className="h-5 w-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
+                    </a>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <Image
+                  src="https://media.licdn.com/dms/image/v2/D4D03AQGtqQrRYE6C_w/profile-displayphoto-shrink_800_800/B4DZdWwvT2GgAc-/0/1749507307274?e=1756339200&v=beta&t=4c5DpyUssfPbueGmxSoi7GvInPykMuUqyHvsQBvGsWk"
+                  alt="Deivid Veras"
+                  width={96}
+                  height={96}
+                  className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
+                  unoptimized
+                />
+                <h3 className="text-xl font-semibold mb-2">Deivid Veras</h3>
+                <p className="text-blue-600 mb-2">Co-Fundador</p>
+                <p className="text-gray-600 text-sm mb-4">
+                  Profissional de Tecnologia da Informação com mais de 25 anos
+                  de experiência em infraestrutura e gestão. Líder de comunidade
+                  há 20 anos. Cofundador dos eventos Cloud Summit Cerrado e
+                  JoinCommunity. Lider Override e AWS Goiânia.
+                </p>
+                <div className="flex justify-center space-x-3">
+                  <div className="flex justify-center space-x-3">
+                    <a
+                      href="https://www.linkedin.com/in/deividveras/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Linkedin className="h-5 w-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
+                    </a>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <Image
+                  src="https://media.licdn.com/dms/image/v2/D4D03AQED4HTEJIRusw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1724957880743?e=1756339200&v=beta&t=sGN11RgBew_vW71JzsGaWL2yt6iufyGz6znK-GRvHxI"
+                  alt="Glauber Carvalho"
+                  width={96}
+                  height={96}
+                  className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
+                  unoptimized
+                />
+                <h3 className="text-xl font-semibold mb-2">Glauber Carvalho</h3>
+                <p className="text-blue-600 mb-2">Co-Fundador</p>
+                <p className="text-gray-600 text-sm mb-4">
+                  Desenvolvedor Web com forte foco em arquitetura de software
+                  especializado em construção de APIs GraphQL de alta
+                  performance e escaláveis, usando C# e .NET. Proficiente em
+                  construir interfaces de usuário modernas e responsivas com
+                  React.
+                </p>
+                <div className="flex justify-center space-x-3">
+                  <div className="flex justify-center space-x-3">
+                    <a
+                      href="https://www.linkedin.com/in/deividveras/"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
