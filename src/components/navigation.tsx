@@ -1,6 +1,7 @@
 'use client';
 
 import { LogOut, Menu, User, X } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -23,8 +24,15 @@ export function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold text-blue-600">
-            Hub Community
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/images/logo-horizontal-raw.png"
+              alt="Hub Community"
+              width={200}
+              height={40}
+              priority
+              className="h-8 w-auto"
+            />
           </Link>
 
           {/* Desktop Menu */}

@@ -15,10 +15,12 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Hub Community - Conecte-se com a Comunidade Tech',
-  description:
-    'Descubra comunidades de tecnologia incríveis e participe dos melhores eventos da sua região',
+  title: 'Hub Community',
+  description: 'A casa open source da sua comunidade',
   keywords: 'tecnologia, comunidades, eventos, programação, desenvolvimento',
+  icons: {
+    icon: '/images/logo-square.png',
+  },
 };
 
 export default function RootLayout({
