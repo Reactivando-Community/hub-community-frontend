@@ -18,11 +18,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { GET_COMMUNITIES, GET_LOCATIONS } from '@/lib/queries';
 import { Community, EventLocation, Product, Talk } from '@/lib/types';
+import { useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Calendar, MapPin, Plus, User as UserIcon, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -44,7 +46,7 @@ const eventSchema = z.object({
   }),
   pixai_token_integration: z.string().optional(),
   description: z.any().optional(), // Complex type, validating as any for now
-  location: z.any().optional(), // Store the location object or ID
+  location: z.any().optional(), // Stores the ID or object during interaction
   communityId: z.string().optional(),
   talks: z.array(z.any()).optional(),
   products: z.array(z.any()).optional(),
@@ -53,38 +55,21 @@ const eventSchema = z.object({
 type EventFormValues = z.infer<typeof eventSchema>;
 
 interface EventFormProps {
-  initialData?: EventFormValues & { documentId?: string }; // Adjust based on actual data structure
+  initialData?: EventFormValues & { id?: string }; // Adjust based on actual data structure
   onSubmit: (data: EventFormValues) => Promise<void>;
   isLoading?: boolean;
 }
 
-// Mock locations for now, in valid implementation this would come from API
+// Mock locations - deprecated, now using GET_LOCATIONS
 const MOCK_LOCATIONS: { label: string; value: string; data: EventLocation }[] =
-  [
-    {
-      label: 'Centro de Convenções Goiânia',
-      value: 'loc-1',
-      data: {
-        title: 'Centro de Convenções Goiânia',
-        city: 'Goiânia',
-        region: 'GO',
-        full_address: 'Rua 4, Centro',
-      },
-    },
-  ];
+  [];
 
-// Mock communities
+// Mock communities - deprecated, now using GET_COMMUNITIES
 const MOCK_COMMUNITIES: {
   label: string;
   value: string;
   data: Partial<Community>;
-}[] = [
-  {
-    label: 'React Brasil',
-    value: 'comm-1',
-    data: { id: 'comm-1', title: 'React Brasil', slug: 'react-brasil' },
-  },
-];
+}[] = [];
 
 export function EventForm({
   initialData,
@@ -92,7 +77,7 @@ export function EventForm({
   isLoading,
 }: EventFormProps) {
   const router = useRouter();
-  const isEditing = !!initialData?.documentId;
+  const isEditing = !!initialData?.id;
 
   // Location State
   const [locations, setLocations] = useState(MOCK_LOCATIONS);
@@ -100,11 +85,48 @@ export function EventForm({
     string | undefined
   >(initialData?.location?.id);
 
+  const { data: locationsData } = useQuery(GET_LOCATIONS);
+
+  useEffect(() => {
+    if (locationsData?.locations?.data) {
+      const options = locationsData.locations.data.map((loc: any) => ({
+        label: loc.title || 'Sem título',
+        value: loc.id,
+        data: loc,
+      }));
+      setLocations(options);
+
+      // If we have initialData and the location is in the list, ensure it's selected
+      const initialLocId = initialData?.location?.id;
+      if (initialLocId && !selectedLocationId) {
+        setSelectedLocationId(initialLocId);
+      }
+    }
+  }, [locationsData, initialData, selectedLocationId]);
+
   // Community State
   const [communities, setCommunities] = useState(MOCK_COMMUNITIES);
   const [selectedCommunityId, setSelectedCommunityId] = useState<
     string | undefined
   >(initialData?.communityId);
+
+  const { data: communitiesData } = useQuery(GET_COMMUNITIES);
+
+  useEffect(() => {
+    if (communitiesData?.communities?.data) {
+      const options = communitiesData.communities.data.map((comm: any) => ({
+        label: comm.title,
+        value: comm.id,
+        data: comm,
+      }));
+      setCommunities(options);
+
+      // If we have initialData and the community is in the list, ensure it's selected
+      if (initialData?.communityId && !selectedCommunityId) {
+        setSelectedCommunityId(initialData.communityId);
+      }
+    }
+  }, [communitiesData, initialData, selectedCommunityId]);
 
   // Talks State
   const [talks, setTalks] = useState<Talk[]>(initialData?.talks || []);
@@ -142,17 +164,11 @@ export function EventForm({
     form.setValue('slug', slug);
   };
 
-  // Location Handlers
   const handleAddLocation = (newLocation: EventLocation) => {
-    const id = `new-loc-${Date.now()}`;
-    const locationOption = {
-      label: newLocation.title || 'Novo Local',
-      value: id,
-      data: newLocation,
-    };
-    setLocations([...locations, locationOption]);
-    setSelectedLocationId(id);
-    form.setValue('location', newLocation);
+    if (newLocation.id) {
+      setSelectedLocationId(newLocation.id);
+      form.setValue('location', newLocation.id);
+    }
   };
 
   const handleLocationSelect = (id: string) => {
@@ -165,15 +181,8 @@ export function EventForm({
 
   // Community Handlers
   const handleAddCommunity = (newCommunity: any) => {
-    const id = newCommunity.id;
-    const commOption = {
-      label: newCommunity.title,
-      value: id,
-      data: newCommunity,
-    };
-    setCommunities([...communities, commOption]);
-    setSelectedCommunityId(id);
-    form.setValue('communityId', id);
+    setSelectedCommunityId(newCommunity.id);
+    form.setValue('communityId', newCommunity.id);
   };
 
   const handleCommunitySelect = (id: string) => {

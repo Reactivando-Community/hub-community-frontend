@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import {
   Dialog,
   DialogContent,
@@ -26,9 +27,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { CREATE_LOCATION, GET_LOCATIONS } from '@/lib/queries';
 import { EventLocation } from '@/lib/types';
+import regionAndCities from '@/utils/regionAndCities.json';
+import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -54,24 +58,75 @@ export function LocationFormDialog({
   trigger,
 }: LocationFormDialogProps) {
   const [open, setOpen] = useState(false);
+  const [createLocation, { loading: isCreating }] = useMutation(
+    CREATE_LOCATION,
+    {
+      refetchQueries: [{ query: GET_LOCATIONS }],
+    }
+  );
+
+  const isDev = process.env.NODE_ENV === 'development';
 
   const form = useForm<LocationFormValues>({
     resolver: zodResolver(locationSchema),
-    defaultValues: {
-      title: '',
-      region: '',
-      full_address: '',
-      city: '',
-      google_maps_url: '',
-      latitude: 0,
-      longitude: 0,
-    },
+    defaultValues: isDev
+      ? {
+          title: 'SENAI',
+          region: 'GO',
+          city: 'Anápolis',
+          full_address: 'rua endereço',
+          google_maps_url:
+            'https://www.google.com/maps/place/SENAI+Roberto+Mange+-+An%C3%A1polis/@-16.331037,-48.9529389,17z/data=!3m1!4b1!4m6!3m5!1s0x935ea46335ddcb0d:0x114ab43a21f628ce!8m2!3d-16.3310422!4d-48.950364!16s%2Fg%2F1tff8pp8?entry=ttu&g_ep=EgoyMDI2MDIxOC4wIKXMDSoASAFQAw%3D%3D',
+          latitude: -16.331037,
+          longitude: -48.9529389,
+        }
+      : {
+          title: '',
+          region: '',
+          full_address: '',
+          city: '',
+          google_maps_url: '',
+          latitude: 0,
+          longitude: 0,
+        },
   });
 
-  const onSubmit = (data: LocationFormValues) => {
-    onSave(data);
-    setOpen(false);
-    form.reset();
+  const selectedRegion = form.watch('region');
+  const googleMapsUrl = form.watch('google_maps_url');
+
+  useEffect(() => {
+    if (googleMapsUrl) {
+      // Pattern for standard Google Maps URLs: @lat,long
+      const standardPattern = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+      const match = googleMapsUrl.match(standardPattern);
+
+      if (match) {
+        form.setValue('latitude', parseFloat(match[1]));
+        form.setValue('longitude', parseFloat(match[2]));
+      }
+    }
+  }, [googleMapsUrl, form]);
+
+  const availableCities =
+    regionAndCities.estados.find(e => e.sigla === selectedRegion)?.cidades ||
+    [];
+
+  const onSubmit = async (data: LocationFormValues) => {
+    try {
+      const { data: result } = await createLocation({
+        variables: {
+          data,
+        },
+      });
+
+      if (result?.createLocation) {
+        onSave(result.createLocation);
+        setOpen(false);
+        form.reset();
+      }
+    } catch (error) {
+      console.error('Error creating location:', error);
+    }
   };
 
   return (
@@ -118,19 +173,9 @@ export function LocationFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {[
-                          'GO',
-                          'SP',
-                          'MG',
-                          'MT',
-                          'RJ',
-                          'PR',
-                          'SC',
-                          'RS',
-                          'BA',
-                        ].map(uf => (
-                          <SelectItem key={uf} value={uf}>
-                            {uf}
+                        {regionAndCities.estados.map(estado => (
+                          <SelectItem key={estado.sigla} value={estado.sigla}>
+                            {estado.sigla} - {estado.nome}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -146,7 +191,16 @@ export function LocationFormDialog({
                   <FormItem>
                     <FormLabel>Cidade</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Goiânia" {...field} />
+                      <Combobox
+                        options={availableCities.map(city => ({
+                          label: city,
+                          value: city,
+                        }))}
+                        value={field.value}
+                        onSelect={field.onChange}
+                        placeholder="Selecione a cidade"
+                        disabled={!selectedRegion}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -218,7 +272,9 @@ export function LocationFormDialog({
               >
                 Cancelar
               </Button>
-              <Button type="submit">Adicionar</Button>
+              <Button type="submit" disabled={isCreating}>
+                {isCreating ? 'Adicionando...' : 'Adicionar'}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

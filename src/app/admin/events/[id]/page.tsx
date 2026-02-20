@@ -1,14 +1,14 @@
 'use client';
 
+import { EventForm } from '@/components/admin/event-form';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
+import { GET_EVENT_BY_SLUG_OR_ID, UPDATE_EVENT } from '@/lib/queries';
+import { EventInput, EventResponse, UpdateEventResponse } from '@/lib/types';
 import { useMutation, useQuery } from '@apollo/client';
 import { format } from 'date-fns';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-
-import { EventForm } from '@/components/admin/event-form';
-import { useToast } from '@/components/ui/use-toast';
-import { GET_EVENT_BY_SLUG_OR_ID, UPDATE_EVENT } from '@/lib/queries';
-import { EventInput, EventResponse, UpdateEventResponse } from '@/lib/types';
 
 export default function EditEventPage() {
   const router = useRouter();
@@ -41,9 +41,11 @@ export default function EditEventPage() {
         end_date: event.end_date
           ? format(new Date(event.end_date), "yyyy-MM-dd'T'HH:mm")
           : '',
-        max_slots: 0, // TODO: Add max_slots to query if available, currently not in GET_EVENT_BY_SLUG_OR_ID response type in types.ts but is in query.
+        max_slots: event.max_slots || 0,
         description: event.description,
-        documentId: event.documentId, // Keep reference for update
+        communityId: event.communities?.[0]?.id, // Get the first community ID if available
+        location: event.location,
+        id: event.id, // Keep reference for update
       });
     }
   }, [data]);
@@ -58,14 +60,15 @@ export default function EditEventPage() {
         max_slots: Number(formData.max_slots),
         pixai_token_integration: formData.pixai_token_integration,
         description: formData.description,
+        location: formData.location?.id || formData.location, // Send ID string
       };
 
-      // Ensure we have the documentId
-      const documentId = data?.eventBySlugOrId?.documentId || id;
+      // Ensure we have the id
+      const eventId = data?.eventBySlugOrId?.id || id;
 
       await updateEvent({
         variables: {
-          documentId: documentId,
+          id: eventId,
           data: input,
         },
       });
@@ -75,8 +78,10 @@ export default function EditEventPage() {
         description: 'O evento foi atualizado com sucesso.',
       });
 
-      router.push('/admin/events');
-      router.refresh();
+      toast({
+        title: 'Evento atualizado',
+        description: 'O evento foi atualizado com sucesso.',
+      });
     } catch (error) {
       console.error('Error updating event:', error);
       toast({

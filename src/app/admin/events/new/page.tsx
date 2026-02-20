@@ -33,8 +33,10 @@ export default function NewEventPage() {
         description: 'O evento foi criado com sucesso.',
       });
 
-      router.push('/admin/events');
-      router.refresh();
+      toast({
+        title: 'Evento criado',
+        description: 'O evento foi criado com sucesso.',
+      });
     } catch (error) {
       console.error('Error creating event:', error);
       toast({

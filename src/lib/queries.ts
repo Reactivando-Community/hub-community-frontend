@@ -168,6 +168,23 @@ export const GET_TAGS = gql`
   }
 `;
 
+export const GET_LOCATIONS = gql`
+  query GetLocations {
+    locations {
+      data {
+        id
+        title
+        region
+        latitude
+        longitude
+        google_maps_url
+        full_address
+        city
+      }
+    }
+  }
+`;
+
 export const GET_EVENT_BY_SLUG_OR_ID = gql`
   query GetEventBySlugOrId($slugOrId: String!) {
     eventBySlugOrId(slugOrId: $slugOrId) {
@@ -179,6 +196,7 @@ export const GET_EVENT_BY_SLUG_OR_ID = gql`
       start_date
       end_date
       images
+      max_slots
       subscription_link
       communities {
         id
@@ -203,6 +221,7 @@ export const GET_EVENT_BY_SLUG_OR_ID = gql`
         }
       }
       location {
+        id
         title
         region
         latitude
@@ -393,7 +412,7 @@ export const GET_USER_BY_USERNAME = gql`
 export const CREATE_EVENT = gql`
   mutation CreateEvent($data: EventInput!) {
     createEvent(data: $data) {
-      documentId
+      id
       title
       slug
     }
@@ -401,9 +420,9 @@ export const CREATE_EVENT = gql`
 `;
 
 export const UPDATE_EVENT = gql`
-  mutation UpdateEvent($documentId: ID!, $data: EventInput!) {
-    updateEvent(documentId: $documentId, data: $data) {
-      documentId
+  mutation UpdateEvent($id: String!, $data: EventInput!) {
+    updateEvent(id: $id, data: $data) {
+      id
       title
       slug
     }
@@ -411,9 +430,24 @@ export const UPDATE_EVENT = gql`
 `;
 
 export const DELETE_EVENT = gql`
-  mutation DeleteEvent($documentId: ID!) {
-    deleteEvent(documentId: $documentId) {
-      documentId
+  mutation DeleteEvent($id: String!) {
+    deleteEvent(id: $id) {
+      id
+    }
+  }
+`;
+
+export const CREATE_LOCATION = gql`
+  mutation CreateLocation($data: LocationInput!) {
+    createLocation(data: $data) {
+      id
+      title
+      city
+      region
+      full_address
+      google_maps_url
+      latitude
+      longitude
     }
   }
 `;

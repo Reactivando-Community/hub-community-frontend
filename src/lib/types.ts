@@ -76,6 +76,7 @@ export interface Talk {
 }
 
 export interface EventLocation {
+  id?: string;
   title?: string;
   region?: string;
   latitude?: number;
@@ -106,6 +107,7 @@ export interface Event {
   talks: Talk[];
   location?: EventLocation;
   products?: Product[];
+  max_slots?: number;
 }
 
 export interface Batch {
@@ -150,7 +152,7 @@ export interface TagsResponse {
 }
 
 export interface EventResponse {
-  event: Event;
+  eventBySlugOrId: Event;
 }
 
 export interface TalkResponse {
@@ -315,13 +317,14 @@ export interface EventInput {
   end_date: string;
   max_slots?: number;
   pixai_token_integration?: string;
-  // products?: string[]; // IDs of products
-  // communities?: string[]; // IDs of communities
+  products?: string[]; // IDs of products
+  communities?: string[]; // IDs of communities
+  location?: string; // ID of location
 }
 
 export interface CreateEventResponse {
   createEvent: {
-    documentId: string;
+    id: string;
     title: string;
     slug: string;
   };
@@ -329,7 +332,7 @@ export interface CreateEventResponse {
 
 export interface UpdateEventResponse {
   updateEvent: {
-    documentId: string;
+    id: string;
     title: string;
     slug: string;
   };
@@ -337,6 +340,6 @@ export interface UpdateEventResponse {
 
 export interface DeleteEventResponse {
   deleteEvent: {
-    documentId: string;
+    id: string;
   };
 }
