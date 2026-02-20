@@ -20,7 +20,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
-import { Speaker } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
+import { CREATE_SPEAKER, GET_SPEAKERS } from '@/lib/queries';
+import { CreateSpeakerResponse, Speaker } from '@/lib/types';
+import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -29,7 +32,6 @@ import * as z from 'zod';
 const speakerSchema = z.object({
   name: z.string().min(2, 'O nome deve ter pelo menos 2 caracteres.'),
   biography: z.any().optional(), // Rich Text JSON
-  avatar: z.string().optional(),
 });
 
 type SpeakerFormValues = z.infer<typeof speakerSchema>;
@@ -41,23 +43,51 @@ interface SpeakerFormDialogProps {
 
 export function SpeakerFormDialog({ onSave, trigger }: SpeakerFormDialogProps) {
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+
+  const [createSpeaker, { loading }] = useMutation<CreateSpeakerResponse>(
+    CREATE_SPEAKER,
+    {
+      refetchQueries: [{ query: GET_SPEAKERS }],
+    }
+  );
 
   const form = useForm<SpeakerFormValues>({
     resolver: zodResolver(speakerSchema),
     defaultValues: {
       name: '',
       biography: [],
-      avatar: '',
     },
   });
 
-  const onSubmit = (data: SpeakerFormValues) => {
-    onSave({
-      id: `new-speaker-${Date.now()}`,
-      ...data,
-    });
-    setOpen(false);
-    form.reset();
+  const onSubmit = async (data: SpeakerFormValues) => {
+    try {
+      const { data: responseData } = await createSpeaker({
+        variables: {
+          data: {
+            name: data.name,
+            biography: data.biography,
+          },
+        },
+      });
+
+      if (responseData?.createSpeaker) {
+        onSave(responseData.createSpeaker as any);
+        setOpen(false);
+        form.reset();
+        toast({
+          title: 'Palestrante criado',
+          description: 'O palestrante foi criado com sucesso.',
+        });
+      }
+    } catch (err) {
+      console.error('Error creating speaker:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao criar palestrante',
+        description: 'Não foi possível criar o palestrante.',
+      });
+    }
   };
 
   return (
@@ -71,7 +101,13 @@ export function SpeakerFormDialog({ onSave, trigger }: SpeakerFormDialogProps) {
           <DialogDescription>Insira os dados do palestrante.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={e => {
+              e.stopPropagation();
+              form.handleSubmit(onSubmit)(e);
+            }}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -80,20 +116,6 @@ export function SpeakerFormDialog({ onSave, trigger }: SpeakerFormDialogProps) {
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
                     <Input placeholder="Ex: João Silva" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="avatar"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Avatar URL (Opcional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -126,7 +148,9 @@ export function SpeakerFormDialog({ onSave, trigger }: SpeakerFormDialogProps) {
               >
                 Cancelar
               </Button>
-              <Button type="submit">Salvar</Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Salvando...' : 'Salvar'}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

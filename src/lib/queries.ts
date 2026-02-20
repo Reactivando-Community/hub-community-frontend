@@ -461,3 +461,23 @@ export const CREATE_COMMUNITY = gql`
     }
   }
 `;
+
+export const CREATE_SPEAKER = gql`
+  mutation CreateSpeaker($data: SpeakerInput!) {
+    createSpeaker(data: $data) {
+      id
+      name
+    }
+  }
+`;
+
+export const GET_SPEAKERS = gql`
+  query GetSpeakers {
+    speakers {
+      data {
+        id
+        name
+      }
+    }
+  }
+`;

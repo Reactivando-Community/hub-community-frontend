@@ -1,6 +1,7 @@
 'use client';
 
 import { SpeakerFormDialog } from '@/components/admin/speaker-form-dialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import {
@@ -22,10 +23,12 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
-import { Speaker, Talk } from '@/lib/types';
+import { GET_SPEAKERS } from '@/lib/queries';
+import { Speaker, SpeakersResponse, Talk } from '@/lib/types';
+import { useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Plus, User } from 'lucide-react';
-import { useState } from 'react';
+import { Plus, User, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -35,14 +38,14 @@ const talkSchema = z.object({
   description: z.any().optional(),
   start_date: z.string().min(1, 'Hora de início é obrigatória.'), // managing as string ISO for simplicity
   end_date: z.string().min(1, 'Hora de fim é obrigatória.'),
-  speakerId: z.string().optional(),
+  speakerIds: z.array(z.string()).default([]),
 });
 
 type TalkFormValues = z.infer<typeof talkSchema>;
 
 interface TalkInput extends Omit<Talk, 'speakers'> {
-  speakerId?: string;
-  speakers: Speaker[]; // simplified to one speaker focused for now but keeping compatibility
+  speakerIds: string[];
+  speakers: Speaker[];
 }
 
 interface TalkFormDialogProps {
@@ -52,30 +55,32 @@ interface TalkFormDialogProps {
   // availableSpeakers could be passed here, or managed internally with a mock/query
 }
 
-// Mock speakers
-const MOCK_SPEAKERS: { label: string; value: string; data: Speaker }[] = [
-  {
-    label: 'Diego Fernandes',
-    value: 'spk-1',
-    data: { id: 'spk-1', name: 'Diego Fernandes', biography: [] },
-  },
-  {
-    label: 'Mayk Brito',
-    value: 'spk-2',
-    data: { id: 'spk-2', name: 'Mayk Brito', biography: [] },
-  },
-];
-
 export function TalkFormDialog({
   onSave,
   trigger,
   initialData,
 }: TalkFormDialogProps) {
   const [open, setOpen] = useState(false);
-  const [speakers, setSpeakers] = useState(MOCK_SPEAKERS);
-  const [selectedSpeakerId, setSelectedSpeakerId] = useState<
-    string | undefined
-  >(initialData?.speakers?.[0]?.id);
+  const [speakersOptions, setSpeakersOptions] = useState<
+    { label: string; value: string; data: Speaker }[]
+  >([]);
+  const [selectedSpeakerIds, setSelectedSpeakerIds] = useState<string[]>(
+    initialData?.speakers?.map(s => s.id) || []
+  );
+
+  const { data: speakersData, loading: loadingSpeakers } =
+    useQuery<SpeakersResponse>(GET_SPEAKERS);
+
+  useEffect(() => {
+    if (speakersData?.speakers?.data) {
+      const options = speakersData.speakers.data.map(s => ({
+        label: s.name,
+        value: s.id,
+        data: s,
+      }));
+      setSpeakersOptions(options);
+    }
+  }, [speakersData]);
 
   const form = useForm<TalkFormValues>({
     resolver: zodResolver(talkSchema),
@@ -86,9 +91,23 @@ export function TalkFormDialog({
       // Assuming initialData dates might need formatting or come as strings
       start_date: initialData?.occur_date || '', // TODO: occur_date is single, might need start/end separation in Talk type or just use one
       end_date: '', // Talk type has occur_date, user request says Start/End time. I'll add fields but map to what's available
-      speakerId: initialData?.speakers?.[0]?.id || '',
+      speakerIds: initialData?.speakers?.map(s => s.id) || [],
     },
   });
+
+  const handleAddSpeakerToList = (id: string) => {
+    if (!selectedSpeakerIds.includes(id)) {
+      const newIds = [...selectedSpeakerIds, id];
+      setSelectedSpeakerIds(newIds);
+      form.setValue('speakerIds', newIds);
+    }
+  };
+
+  const handleRemoveSpeaker = (id: string) => {
+    const newIds = selectedSpeakerIds.filter(sid => sid !== id);
+    setSelectedSpeakerIds(newIds);
+    form.setValue('speakerIds', newIds);
+  };
 
   const handleAddSpeaker = (newSpeaker: Speaker) => {
     const id = newSpeaker.id;
@@ -97,16 +116,14 @@ export function TalkFormDialog({
       value: id,
       data: newSpeaker,
     };
-    setSpeakers([...speakers, speakerOption]);
-    setSelectedSpeakerId(id);
-    form.setValue('speakerId', id);
+    setSpeakersOptions(prev => [...prev, speakerOption]);
+    handleAddSpeakerToList(id);
   };
 
   const onSubmit = (data: TalkFormValues) => {
-    const selectedSpeaker = speakers.find(
-      s => s.value === data.speakerId
-    )?.data;
-    const speakerList = selectedSpeaker ? [selectedSpeaker] : [];
+    const selectedSpeakerList = speakersOptions
+      .filter(s => data.speakerIds.includes(s.value))
+      .map(s => s.data);
 
     onSave({
       id: initialData?.id || `new-talk-${Date.now()}`,
@@ -115,8 +132,8 @@ export function TalkFormDialog({
       description: data.description,
       occur_date: data.start_date, // Mapping start to occur_date for now
       // end_time: data.end_date, // We might need to extend Talk type or store in description/custom field if backend doesn't support
-      speakers: speakerList,
-      speakerId: data.speakerId,
+      speakers: selectedSpeakerList,
+      speakerIds: data.speakerIds,
     });
     setOpen(false);
     form.reset();
@@ -137,7 +154,13 @@ export function TalkFormDialog({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={e => {
+              e.stopPropagation();
+              form.handleSubmit(onSubmit)(e);
+            }}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="title"
@@ -197,7 +220,7 @@ export function TalkFormDialog({
             {/* Speaker Selection */}
             <div className="space-y-3 border p-3 rounded-md">
               <div className="flex items-center justify-between">
-                <FormLabel>Palestrante</FormLabel>
+                <FormLabel>Palestrantes</FormLabel>
                 <SpeakerFormDialog
                   onSave={handleAddSpeaker}
                   trigger={
@@ -209,22 +232,39 @@ export function TalkFormDialog({
               </div>
               <div className="flex gap-2">
                 <Combobox
-                  options={speakers}
-                  value={selectedSpeakerId}
-                  onSelect={val => {
-                    setSelectedSpeakerId(val);
-                    form.setValue('speakerId', val);
-                  }}
-                  placeholder="Selecione um palestrante..."
+                  options={speakersOptions}
+                  onSelect={handleAddSpeakerToList}
+                  placeholder={
+                    loadingSpeakers
+                      ? 'Carregando palestrantes...'
+                      : 'Adicionar um palestrante...'
+                  }
                   className="flex-1"
                 />
               </div>
-              {selectedSpeakerId && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
-                  <User className="h-4 w-4" />
-                  <span>
-                    {speakers.find(s => s.value === selectedSpeakerId)?.label}
-                  </span>
+              {selectedSpeakerIds.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {selectedSpeakerIds.map(id => {
+                    const speaker = speakersOptions.find(s => s.value === id);
+                    if (!speaker) return null;
+                    return (
+                      <Badge
+                        key={id}
+                        variant="secondary"
+                        className="flex items-center gap-1 py-1"
+                      >
+                        <User className="h-3 w-3" />
+                        <span>{speaker.label}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSpeaker(id)}
+                          className="hover:text-destructive transition-colors ml-1"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    );
+                  })}
                 </div>
               )}
             </div>

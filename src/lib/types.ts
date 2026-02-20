@@ -359,3 +359,22 @@ export interface CreateCommunityResponse {
     slug: string;
   };
 }
+
+export interface SpeakerInput {
+  name: string;
+  biography?: string | BlocksContent;
+  avatar?: string;
+}
+
+export interface CreateSpeakerResponse {
+  createSpeaker: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface SpeakersResponse {
+  speakers: {
+    data: Speaker[];
+  };
+}
