@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { DELETE_EVENT, GET_EVENTS } from '@/lib/queries';
 import { DeleteEventResponse, EventsResponse } from '@/lib/types';
 

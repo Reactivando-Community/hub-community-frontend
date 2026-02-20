@@ -181,6 +181,12 @@ export function EventForm({
 
   // Community Handlers
   const handleAddCommunity = (newCommunity: any) => {
+    const newOption = {
+      label: newCommunity.title,
+      value: newCommunity.id,
+      data: newCommunity,
+    };
+    setCommunities(prev => [...prev, newOption]);
     setSelectedCommunityId(newCommunity.id);
     form.setValue('communityId', newCommunity.id);
   };

@@ -451,3 +451,13 @@ export const CREATE_LOCATION = gql`
     }
   }
 `;
+
+export const CREATE_COMMUNITY = gql`
+  mutation CreateCommunity($data: CommunityInput!) {
+    createCommunity(data: $data) {
+      id
+      title
+      slug
+    }
+  }
+`;

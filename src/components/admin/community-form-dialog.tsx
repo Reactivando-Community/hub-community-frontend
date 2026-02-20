@@ -20,6 +20,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { CREATE_COMMUNITY, GET_COMMUNITIES } from '@/lib/queries';
+import { CreateCommunityResponse } from '@/lib/types';
+import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -33,16 +37,8 @@ const communitySchema = z.object({
 
 type CommunityFormValues = z.infer<typeof communitySchema>;
 
-// Mocking a simplified community interface for creation
-interface CommunityInput {
-  id?: string;
-  title: string;
-  slug: string;
-  short_description?: string;
-}
-
 interface CommunityFormDialogProps {
-  onSave: (community: CommunityInput) => void;
+  onSave: (community: any) => void;
   trigger?: React.ReactNode;
 }
 
@@ -51,6 +47,14 @@ export function CommunityFormDialog({
   trigger,
 }: CommunityFormDialogProps) {
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+
+  const [createCommunity, { loading }] = useMutation<CreateCommunityResponse>(
+    CREATE_COMMUNITY,
+    {
+      refetchQueries: [{ query: GET_COMMUNITIES }],
+    }
+  );
 
   const form = useForm<CommunityFormValues>({
     resolver: zodResolver(communitySchema),
@@ -72,13 +76,35 @@ export function CommunityFormDialog({
     form.setValue('slug', slug);
   };
 
-  const onSubmit = (data: CommunityFormValues) => {
-    onSave({
-      id: `new-community-${Date.now()}`,
-      ...data,
-    });
-    setOpen(false);
-    form.reset();
+  const onSubmit = async (data: CommunityFormValues) => {
+    try {
+      const { data: responseData } = await createCommunity({
+        variables: {
+          data: {
+            title: data.title,
+            slug: data.slug,
+            short_description: data.short_description,
+          },
+        },
+      });
+
+      if (responseData?.createCommunity) {
+        onSave(responseData.createCommunity);
+        setOpen(false);
+        form.reset();
+        toast({
+          title: 'Comunidade criada',
+          description: 'A comunidade foi criada com sucesso.',
+        });
+      }
+    } catch (error) {
+      console.error('Error creating community:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao criar comunidade',
+        description: 'Não foi possível criar a comunidade.',
+      });
+    }
   };
 
   return (
@@ -162,7 +188,9 @@ export function CommunityFormDialog({
               >
                 Cancelar
               </Button>
-              <Button type="submit">Salvar</Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Salvando...' : 'Salvar'}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

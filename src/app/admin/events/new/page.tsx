@@ -4,7 +4,7 @@ import { useMutation } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 
 import { EventForm } from '@/components/admin/event-form';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { CREATE_EVENT } from '@/lib/queries';
 import { CreateEventResponse, EventInput } from '@/lib/types';
 

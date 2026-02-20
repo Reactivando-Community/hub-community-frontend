@@ -8,6 +8,7 @@ import { Footer } from '@/components/footer';
 import { LogoutModalWrapper } from '@/components/logout-modal-wrapper';
 import { Navigation } from '@/components/navigation';
 import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/toaster';
 import { AgendaProvider } from '@/contexts/agenda-context';
 import { AuthProvider } from '@/contexts/auth-context';
 import { FilterProvider } from '@/contexts/filter-context';
@@ -46,6 +47,7 @@ export default function RootLayout({
                   >
                     <Navigation />
                     {children}
+                    <Toaster />
                     <Footer />
                   </ThemeProvider>
                 </FilterProvider>

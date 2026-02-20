@@ -343,3 +343,19 @@ export interface DeleteEventResponse {
     id: string;
   };
 }
+
+export interface CommunityInput {
+  title: string;
+  slug: string;
+  short_description?: string | BlocksContent;
+  full_description?: string | BlocksContent;
+  members_quantity?: number;
+}
+
+export interface CreateCommunityResponse {
+  createCommunity: {
+    id: string;
+    title: string;
+    slug: string;
+  };
+}

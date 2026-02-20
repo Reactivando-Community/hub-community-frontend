@@ -2,7 +2,7 @@
 
 import { EventForm } from '@/components/admin/event-form';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { GET_EVENT_BY_SLUG_OR_ID, UPDATE_EVENT } from '@/lib/queries';
 import { EventInput, EventResponse, UpdateEventResponse } from '@/lib/types';
 import { useMutation, useQuery } from '@apollo/client';
