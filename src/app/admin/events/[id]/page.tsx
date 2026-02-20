@@ -61,6 +61,7 @@ export default function EditEventPage() {
         pixai_token_integration: formData.pixai_token_integration,
         description: formData.description,
         location: formData.location?.id || formData.location, // Send ID string
+        communities: formData.communityId ? [formData.communityId] : [],
       };
 
       // Ensure we have the id

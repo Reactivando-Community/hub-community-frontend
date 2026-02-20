@@ -382,45 +382,6 @@ export function EventForm({
               </div>
             </div>
 
-            {!isEditing && (
-              <FormField
-                control={form.control}
-                name="pixai_token_integration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Token de Integração Pix Aí</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Token do Pix Aí" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Insira o token de integração do Pix Aí.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <RichTextEditor
-                      value={Array.isArray(field.value) ? field.value : []}
-                      onChange={field.onChange}
-                      placeholder="Descreva os detalhes do evento..."
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TabsContent>
-
-          <TabsContent value="schedule" className="space-y-6 mt-6">
             {/* Community Section */}
             <div className="space-y-4 rounded-lg border p-4">
               <div className="flex items-center justify-between">
@@ -466,6 +427,45 @@ export function EventForm({
               </div>
             </div>
 
+            {!isEditing && (
+              <FormField
+                control={form.control}
+                name="pixai_token_integration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Token de Integração Pix Aí</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Token do Pix Aí" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Insira o token de integração do Pix Aí.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descrição</FormLabel>
+                  <FormControl>
+                    <RichTextEditor
+                      value={Array.isArray(field.value) ? field.value : []}
+                      onChange={field.onChange}
+                      placeholder="Descreva os detalhes do evento..."
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </TabsContent>
+
+          <TabsContent value="schedule" className="space-y-6 mt-6">
             {/* Talks Section */}
             <div className="space-y-4 rounded-lg border p-4">
               <div className="flex items-center justify-between">
