@@ -23,9 +23,16 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
-import { GET_SPEAKERS } from '@/lib/queries';
-import { Speaker, SpeakersResponse, Talk } from '@/lib/types';
-import { useQuery } from '@apollo/client';
+import { useToast } from '@/hooks/use-toast';
+import { CREATE_TALK, GET_SPEAKERS, UPDATE_TALK } from '@/lib/queries';
+import {
+  CreateTalkResponse,
+  Speaker,
+  SpeakersResponse,
+  Talk,
+  UpdateTalkResponse,
+} from '@/lib/types';
+import { useMutation, useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, User, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -36,8 +43,7 @@ const talkSchema = z.object({
   title: z.string().min(2, 'O título é obrigatório.'),
   subtitle: z.string().optional(),
   description: z.any().optional(),
-  start_date: z.string().min(1, 'Hora de início é obrigatória.'), // managing as string ISO for simplicity
-  end_date: z.string().min(1, 'Hora de fim é obrigatória.'),
+  occur_date: z.string().min(1, 'A data é obrigatória.'),
   speakerIds: z.array(z.string()).default([]),
 });
 
@@ -49,18 +55,27 @@ interface TalkInput extends Omit<Talk, 'speakers'> {
 }
 
 interface TalkFormDialogProps {
-  onSave: (talk: TalkInput) => void;
+  onSave: (talk: any) => void;
   trigger?: React.ReactNode;
   initialData?: Talk;
-  // availableSpeakers could be passed here, or managed internally with a mock/query
+  eventId?: string;
+  onSubmitEvent?: () => Promise<string | undefined>;
 }
 
 export function TalkFormDialog({
   onSave,
   trigger,
   initialData,
+  eventId,
+  onSubmitEvent,
 }: TalkFormDialogProps) {
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+
+  const [createTalk, { loading: creating }] =
+    useMutation<CreateTalkResponse>(CREATE_TALK);
+  const [updateTalk, { loading: updating }] =
+    useMutation<UpdateTalkResponse>(UPDATE_TALK);
   const [speakersOptions, setSpeakersOptions] = useState<
     { label: string; value: string; data: Speaker }[]
   >([]);
@@ -88,9 +103,7 @@ export function TalkFormDialog({
       title: initialData?.title || '',
       subtitle: initialData?.subtitle || '',
       description: initialData?.description || [],
-      // Assuming initialData dates might need formatting or come as strings
-      start_date: initialData?.occur_date || '', // TODO: occur_date is single, might need start/end separation in Talk type or just use one
-      end_date: '', // Talk type has occur_date, user request says Start/End time. I'll add fields but map to what's available
+      occur_date: initialData?.occur_date || '',
       speakerIds: initialData?.speakers?.map(s => s.id) || [],
     },
   });
@@ -120,23 +133,91 @@ export function TalkFormDialog({
     handleAddSpeakerToList(id);
   };
 
-  const onSubmit = (data: TalkFormValues) => {
-    const selectedSpeakerList = speakersOptions
-      .filter(s => data.speakerIds.includes(s.value))
-      .map(s => s.data);
+  const onSubmit = async (data: TalkFormValues) => {
+    try {
+      let currentEventId = eventId;
 
-    onSave({
-      id: initialData?.id || `new-talk-${Date.now()}`,
-      title: data.title,
-      subtitle: data.subtitle,
-      description: data.description,
-      occur_date: data.start_date, // Mapping start to occur_date for now
-      // end_time: data.end_date, // We might need to extend Talk type or store in description/custom field if backend doesn't support
-      speakers: selectedSpeakerList,
-      speakerIds: data.speakerIds,
-    });
-    setOpen(false);
-    form.reset();
+      // If no eventId and we have a way to save the event, save it first
+      if (!currentEventId && onSubmitEvent) {
+        toast({
+          title: 'Salvando evento...',
+          description:
+            'O evento precisa ser salvo antes de adicionar palestras.',
+        });
+        currentEventId = await onSubmitEvent();
+      }
+
+      if (!currentEventId) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro',
+          description: 'Não foi possível obter o ID do evento.',
+        });
+        return;
+      }
+
+      const selectedSpeakerIdsList = data.speakerIds;
+      const selectedSpeakerList = speakersOptions
+        .filter(s => data.speakerIds.includes(s.value))
+        .map(s => s.data);
+
+      const talkInput = {
+        title: data.title,
+        subtitle: data.subtitle,
+        description: data.description,
+        speakers: selectedSpeakerIdsList,
+        occur_date:
+          data.occur_date.length === 16
+            ? `${data.occur_date}:00`
+            : data.occur_date,
+        event: currentEventId,
+        room_description: 'Auditório Principal', // Default or could be a field
+        highlight: false,
+      };
+
+      if (initialData?.id && !initialData.id.startsWith('new-talk')) {
+        // Update existing talk
+        const { data: responseData } = await updateTalk({
+          variables: {
+            updateTalkId: initialData.id,
+            data: talkInput,
+          },
+        });
+
+        if (responseData?.updateTalk) {
+          onSave(responseData.updateTalk);
+          toast({
+            title: 'Palestra atualizada',
+            description: 'A palestra foi atualizada com sucesso.',
+          });
+        }
+      } else {
+        // Create new talk
+        const { data: responseData } = await createTalk({
+          variables: {
+            data: talkInput,
+          },
+        });
+
+        if (responseData?.createTalk) {
+          onSave(responseData.createTalk);
+          toast({
+            title: 'Palestra criada',
+            description: 'A palestra foi criada com sucesso.',
+          });
+        }
+      }
+
+      setOpen(false);
+      form.reset();
+    } catch (err) {
+      console.error('Error saving talk:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao salvar palestra',
+        description: 'Não foi possível salvar a palestra.',
+      });
+    }
   };
 
   return (
@@ -188,34 +269,19 @@ export function TalkFormDialog({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="start_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Início</FormLabel>
-                    <FormControl>
-                      <Input type="datetime-local" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="end_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fim</FormLabel>
-                    <FormControl>
-                      <Input type="datetime-local" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="occur_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Data e Hora</FormLabel>
+                  <FormControl>
+                    <Input type="datetime-local" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Speaker Selection */}
             <div className="space-y-3 border p-3 rounded-md">
@@ -295,7 +361,9 @@ export function TalkFormDialog({
               >
                 Cancelar
               </Button>
-              <Button type="submit">Salvar Palestra</Button>
+              <Button type="submit" disabled={creating || updating}>
+                {creating || updating ? 'Salvando...' : 'Salvar Palestra'}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

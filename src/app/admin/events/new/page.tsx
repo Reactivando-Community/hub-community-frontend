@@ -26,19 +26,19 @@ export default function NewEventPage() {
         description: data.description, // Assuming it's compatible or handled by backend/form
         communities: data.communityId ? [data.communityId] : [],
         location: data.location?.id || data.location,
+        talks: data.talks?.map((t: any) => t.id) || [],
       };
 
-      await createEvent({ variables: { data: input } });
-
-      toast({
-        title: 'Evento criado',
-        description: 'O evento foi criado com sucesso.',
+      const { data: responseData } = await createEvent({
+        variables: { data: input },
       });
 
       toast({
         title: 'Evento criado',
         description: 'O evento foi criado com sucesso.',
       });
+
+      return responseData?.createEvent?.id;
     } catch (error) {
       console.error('Error creating event:', error);
       toast({

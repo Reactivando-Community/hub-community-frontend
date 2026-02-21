@@ -22,7 +22,14 @@ import { GET_COMMUNITIES, GET_LOCATIONS } from '@/lib/queries';
 import { Community, EventLocation, Product, Talk } from '@/lib/types';
 import { useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Calendar, MapPin, Plus, User as UserIcon, Users } from 'lucide-react';
+import {
+  Calendar,
+  MapPin,
+  Plus,
+  Trash2,
+  User as UserIcon,
+  Users,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -56,7 +63,7 @@ type EventFormValues = z.infer<typeof eventSchema>;
 
 interface EventFormProps {
   initialData?: EventFormValues & { id?: string }; // Adjust based on actual data structure
-  onSubmit: (data: EventFormValues) => Promise<void>;
+  onSubmit: (data: EventFormValues) => Promise<string | undefined>;
   isLoading?: boolean;
 }
 
@@ -204,12 +211,26 @@ export function EventForm({
     form.setValue('talks', updatedTalks);
   };
 
+  const handleRemoveTalk = (id: string) => {
+    const updatedTalks = talks.filter(t => t.id !== id);
+    setTalks(updatedTalks);
+    form.setValue('talks', updatedTalks);
+  };
+
   // Product Handlers
   const handleAddProduct = (newProduct: any) => {
     const prod = { ...newProduct, id: newProduct.id || `prod-${Date.now()}` };
     const updatedProducts = [...products, prod];
     setProducts(updatedProducts);
     form.setValue('products', updatedProducts);
+  };
+
+  const handleSaveEventForTalk = async (): Promise<string | undefined> => {
+    const isValid = await form.trigger();
+    if (isValid) {
+      return await onSubmit(form.getValues());
+    }
+    return undefined;
   };
 
   return (
@@ -480,6 +501,8 @@ export function EventForm({
                 </FormLabel>
                 <TalkFormDialog
                   onSave={handleAddTalk}
+                  eventId={initialData?.id}
+                  onSubmitEvent={handleSaveEventForTalk}
                   trigger={
                     <Button type="button" variant="outline" size="sm">
                       <Plus className="mr-2 h-4 w-4" />
@@ -519,9 +542,33 @@ export function EventForm({
                           ))}
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm">
-                        Editar
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <TalkFormDialog
+                          onSave={updatedTalk => {
+                            const newTalks = talks.map(t =>
+                              t.id === talk.id ? updatedTalk : t
+                            );
+                            setTalks(newTalks);
+                            form.setValue('talks', newTalks);
+                          }}
+                          initialData={talk}
+                          eventId={initialData?.id}
+                          onSubmitEvent={handleSaveEventForTalk}
+                          trigger={
+                            <Button variant="ghost" size="sm">
+                              Editar
+                            </Button>
+                          }
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => handleRemoveTalk(talk.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>

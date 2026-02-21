@@ -46,6 +46,8 @@ export default function EditEventPage() {
         communityId: event.communities?.[0]?.id, // Get the first community ID if available
         location: event.location,
         id: event.id, // Keep reference for update
+        talks: event.talks || [],
+        products: event.products || [],
       });
     }
   }, [data]);
@@ -62,12 +64,13 @@ export default function EditEventPage() {
         description: formData.description,
         location: formData.location?.id || formData.location, // Send ID string
         communities: formData.communityId ? [formData.communityId] : [],
+        talks: formData.talks?.map((t: any) => t.id) || [],
       };
 
       // Ensure we have the id
       const eventId = data?.eventBySlugOrId?.id || id;
 
-      await updateEvent({
+      const { data: responseData } = await updateEvent({
         variables: {
           id: eventId,
           data: input,
@@ -79,10 +82,7 @@ export default function EditEventPage() {
         description: 'O evento foi atualizado com sucesso.',
       });
 
-      toast({
-        title: 'Evento atualizado',
-        description: 'O evento foi atualizado com sucesso.',
-      });
+      return responseData?.updateEvent?.id || eventId;
     } catch (error) {
       console.error('Error updating event:', error);
       toast({

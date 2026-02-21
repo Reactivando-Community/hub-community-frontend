@@ -220,6 +220,19 @@ export const GET_EVENT_BY_SLUG_OR_ID = gql`
           avatar
         }
       }
+      products {
+        id
+        enabled
+        name
+        batches {
+          id
+          batch_number
+          value
+          max_quantity
+          enabled
+          half_price_eligible
+        }
+      }
       location {
         id
         title
@@ -477,6 +490,34 @@ export const GET_SPEAKERS = gql`
       data {
         id
         name
+      }
+    }
+  }
+`;
+
+export const CREATE_TALK = gql`
+  mutation CreateTalk($data: TalkInput!) {
+    createTalk(data: $data) {
+      id
+      title
+      speakers {
+        name
+        id
+      }
+    }
+  }
+`;
+
+export const UPDATE_TALK = gql`
+  mutation UpdateTalk($updateTalkId: String!, $data: TalkInput!) {
+    updateTalk(id: $updateTalkId, data: $data) {
+      id
+      title
+      occur_date
+      description
+      speakers {
+        name
+        id
       }
     }
   }

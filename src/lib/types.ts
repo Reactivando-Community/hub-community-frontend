@@ -320,6 +320,7 @@ export interface EventInput {
   products?: string[]; // IDs of products
   communities?: string[]; // IDs of communities
   location?: string; // ID of location
+  talks?: string[]; // IDs of talks
 }
 
 export interface CreateEventResponse {
@@ -376,5 +377,34 @@ export interface CreateSpeakerResponse {
 export interface SpeakersResponse {
   speakers: {
     data: Speaker[];
+  };
+}
+
+export interface TalkInput {
+  title: string;
+  subtitle?: string;
+  description?: any[];
+  speakers?: string[];
+  occur_date: string;
+  event: string;
+  room_description?: string;
+  highlight?: boolean;
+}
+
+export interface CreateTalkResponse {
+  createTalk: {
+    id: string;
+    title: string;
+    speakers: Speaker[];
+  };
+}
+
+export interface UpdateTalkResponse {
+  updateTalk: {
+    id: string;
+    title: string;
+    occur_date: string;
+    description: any[];
+    speakers: Speaker[];
   };
 }
