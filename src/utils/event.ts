@@ -36,8 +36,6 @@ export const isEventOngoing = (startDate: string, endDate: string): boolean => {
     const eventStartDate = new Date(startDate);
     const eventEndDate = new Date(endDate);
     const currentDate = new Date();
-
-    console.log(currentDate, eventStartDate, eventEndDate);
     return currentDate >= eventStartDate && currentDate <= eventEndDate;
   } catch {
     return false;
@@ -116,7 +114,6 @@ export const getPastEvents = (events: Event[]): Event[] | null => {
 
 // Function to get ongoing events from a list of events
 export const getOngoingEvents = (events: Event[]): Event[] | null => {
-  console.log(events);
   if (!Array.isArray(events) || events.length === 0) {
     return null;
   }

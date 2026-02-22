@@ -3,7 +3,7 @@
 import { Calendar, LogOut, Menu, User, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { AuthModal } from '@/components/auth-modal';
 import { ModeToggle } from '@/components/mode-toggle';
@@ -31,10 +31,6 @@ export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { isAuthenticated, user, signOut } = useAuth();
-
-  useEffect(() => {
-    console.log('logged user: ', user);
-  }, []);
 
   const handleSignOut = () => {
     signOut();

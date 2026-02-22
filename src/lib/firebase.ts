@@ -27,7 +27,6 @@ export const initializeAnalytics = async () => {
       const supported = await isSupported();
       if (supported) {
         analytics = getAnalytics(app);
-        console.log('Firebase Analytics initialized successfully');
       } else {
         console.warn('Firebase Analytics is not supported in this browser');
       }

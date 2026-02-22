@@ -27,10 +27,6 @@ export const trackEvent = (
     if (analytics) {
       // Send event to Firebase Analytics
       logEvent(analytics, eventName, parameters);
-
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`Analytics event tracked: ${eventName}`, parameters);
-      }
     } else {
       // Analytics not yet initialized
       if (process.env.NODE_ENV !== 'production') {
@@ -53,7 +49,10 @@ export const trackAddTalkToAgenda = (talkId: string, eventSlug: string) => {
   });
 };
 
-export const trackRemoveTalkFromAgenda = (talkId: string, eventSlug: string) => {
+export const trackRemoveTalkFromAgenda = (
+  talkId: string,
+  eventSlug: string
+) => {
   trackEvent(ANALYTICS_EVENTS.REMOVE_TALK_FROM_AGENDA, {
     talk_id: talkId,
     event_slug: eventSlug,

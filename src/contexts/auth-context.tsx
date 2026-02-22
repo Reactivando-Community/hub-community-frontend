@@ -9,8 +9,8 @@ import {
   type ReactNode,
 } from 'react';
 
-import { FORWARD_PASSWORD, SIGN_IN, SIGN_UP } from '@/lib/queries';
 import { isTokenExpired } from '@/lib/jwt';
+import { FORWARD_PASSWORD, SIGN_IN, SIGN_UP } from '@/lib/queries';
 import type {
   AuthContextType,
   AuthState,
@@ -112,7 +112,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (token && userString) {
         // Check if token is expired before loading
         if (isTokenExpired(token)) {
-          console.log('Token is expired, clearing storage');
           clearStorage();
           return;
         }
@@ -131,9 +130,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!state.isAuthenticated) return;
 
-    const interval = setInterval(() => {
-      validateToken();
-    }, 5 * 60 * 1000); // 5 minutes
+    const interval = setInterval(
+      () => {
+        validateToken();
+      },
+      5 * 60 * 1000
+    ); // 5 minutes
 
     return () => clearInterval(interval);
   }, [state.isAuthenticated, state.token]);
@@ -141,14 +143,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Listen for token expired events from Apollo client
   useEffect(() => {
     const handleTokenExpired = () => {
-      console.log('Token expired event received, showing logout modal');
       dispatch({ type: 'SIGN_OUT' });
       dispatch({ type: 'SHOW_LOGOUT_ALERT' });
     };
 
     if (typeof window !== 'undefined') {
       window.addEventListener('auth:tokenExpired', handleTokenExpired);
-      return () => window.removeEventListener('auth:tokenExpired', handleTokenExpired);
+      return () =>
+        window.removeEventListener('auth:tokenExpired', handleTokenExpired);
     }
   }, []);
 
@@ -175,7 +177,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Validate current token and clear if expired
   const validateToken = () => {
     if (state.token && isTokenExpired(state.token)) {
-      console.log('Current token is expired, signing out');
       signOut(true); // Show logout alert
       return false;
     }

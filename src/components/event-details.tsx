@@ -74,7 +74,6 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
     email: string;
     phone: string;
   }) => {
-    console.log('Registration data:', data);
     // TODO: Implement API call to register user for event
     // For now, just redirect to subscription link if available
     if (event?.subscription_link) {

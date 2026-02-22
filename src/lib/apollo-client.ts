@@ -20,7 +20,6 @@ function createApolloClient() {
 
     // Validate token before using it
     if (token && isTokenExpired(token)) {
-      console.log('Token expired during request, clearing storage');
       // Clear expired token from storage
       if (typeof window !== 'undefined') {
         localStorage.removeItem('auth_token');
