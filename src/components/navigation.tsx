@@ -1,6 +1,7 @@
 'use client';
 
 import { Calendar, LogOut, Menu, User, X } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -31,6 +32,7 @@ export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { isAuthenticated, user, signOut } = useAuth();
+  const shouldReduceMotion = useReducedMotion();
 
   const handleSignOut = () => {
     signOut();
@@ -140,8 +142,16 @@ export function Navigation() {
         </div>
 
         {/* Mobile Menu */}
+        <AnimatePresence>
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border bg-background">
+          <motion.div
+            initial={shouldReduceMotion ? false : { height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="md:hidden overflow-hidden border-t border-border bg-background"
+          >
+          <div className="py-4">
             <div className="flex flex-col space-y-4">
               <Link
                 href="/"
@@ -216,7 +226,9 @@ export function Navigation() {
               </div>
             </div>
           </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
 
       {/* Auth Modal */}

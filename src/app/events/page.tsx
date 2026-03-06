@@ -3,6 +3,7 @@ import { Calendar, Clock, MapPin, Users } from 'lucide-react';
 import { Suspense, useState } from 'react';
 
 import { EventsSection } from '@/components/events-section';
+import { EventsSectionSkeleton } from '@/components/events-section-skeleton';
 import { SearchAndFilters } from '@/components/search-and-filters';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -61,9 +62,7 @@ export default function EventsPage() {
           </div>
 
           <Suspense
-            fallback={
-              <div className="animate-pulse">Carregando eventos...</div>
-            }
+            fallback={<EventsSectionSkeleton />}
           >
             <EventsSection onCountChange={setEventCount} />
           </Suspense>

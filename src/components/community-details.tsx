@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+import { FadeIn } from '@/components/animations';
+import { CommunityDetailsSkeleton } from '@/components/community-details-skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,18 +45,7 @@ export function CommunityDetails({ slugOrId }: CommunityDetailsProps) {
   );
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="animate-pulse">
-          <div className="h-96 bg-muted"></div>
-          <div className="container mx-auto px-4 py-12">
-            <div className="h-8 bg-muted rounded mb-4"></div>
-            <div className="h-4 bg-muted rounded mb-2"></div>
-            <div className="h-4 bg-muted rounded w-3/4"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <CommunityDetailsSkeleton />;
   }
 
   if (error) {
@@ -103,6 +94,7 @@ export function CommunityDetails({ slugOrId }: CommunityDetailsProps) {
   const ongoingEvents = getOngoingEvents(community.events || []);
 
   return (
+    <FadeIn direction="up" duration={0.3}>
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="relative min-h-64 md:min-h-80 lg:min-h-96 bg-gradient-to-r from-blue-600 to-purple-700">
@@ -505,5 +497,6 @@ export function CommunityDetails({ slugOrId }: CommunityDetailsProps) {
         </div>
       </div>
     </div>
+    </FadeIn>
   );
 }

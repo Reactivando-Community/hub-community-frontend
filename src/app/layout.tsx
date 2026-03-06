@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import type React from 'react';
 
+import { PageTransitionProvider } from '@/components/animations';
 import { ApolloProviderWrapper } from '@/components/apollo-provider';
 import { FirebaseProvider } from '@/components/firebase-provider';
 import { Footer } from '@/components/footer';
@@ -46,7 +47,9 @@ export default function RootLayout({
                     disableTransitionOnChange
                   >
                     <Navigation />
-                    {children}
+                    <PageTransitionProvider>
+                      {children}
+                    </PageTransitionProvider>
                     <Toaster />
                     <Footer />
                   </ThemeProvider>

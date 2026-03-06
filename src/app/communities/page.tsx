@@ -4,6 +4,7 @@ import { Calendar, MapPin, Users } from 'lucide-react';
 import { Suspense, useState } from 'react';
 
 import { CommunityGrid } from '@/components/community-grid';
+import { CommunityGridSkeleton } from '@/components/community-grid-skeleton';
 import { SearchAndFilters } from '@/components/search-and-filters';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -60,9 +61,7 @@ export default function CommunitiesPage() {
           </div>
 
           <Suspense
-            fallback={
-              <div className="animate-pulse">Carregando comunidades...</div>
-            }
+            fallback={<CommunityGridSkeleton />}
           >
             <CommunityGrid onCountChange={setCommunityCount} />
           </Suspense>

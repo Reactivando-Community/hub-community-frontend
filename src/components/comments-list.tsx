@@ -1,5 +1,6 @@
 'use client';
 
+import { FadeIn } from '@/components/animations';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -69,7 +70,7 @@ export const CommentsList = forwardRef<
     return (
       <Card>
         <CardContent className="pt-6">
-          <div className="text-center text-gray-500">
+          <div className="text-center text-muted-foreground">
             <MessageSquare className="mx-auto h-12 w-12 mb-4 opacity-50" />
             <p>Erro ao carregar comentários</p>
           </div>
@@ -84,7 +85,7 @@ export const CommentsList = forwardRef<
     return (
       <Card>
         <CardContent className="pt-6">
-          <div className="text-center text-gray-500">
+          <div className="text-center text-muted-foreground">
             <MessageSquare className="mx-auto h-12 w-12 mb-4 opacity-50" />
             <p className="text-lg font-medium mb-2">Nenhum comentário ainda</p>
             <p className="text-sm">
@@ -120,7 +121,8 @@ export const CommentsList = forwardRef<
       </div>
 
       {comments.map((comment, index) => (
-        <Card key={index}>
+        <FadeIn key={index} direction="up" delay={index * 0.05}>
+        <Card>
           <CardContent className="pt-6">
             <div className="flex space-x-4">
               <Avatar className="h-10 w-10">
@@ -132,10 +134,10 @@ export const CommentsList = forwardRef<
 
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-foreground">
                     {comment.user?.username || 'Usuário Anônimo'}
                   </span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-muted-foreground">
                     • há alguns instantes
                   </span>
                 </div>
@@ -147,6 +149,7 @@ export const CommentsList = forwardRef<
             </div>
           </CardContent>
         </Card>
+        </FadeIn>
       ))}
     </div>
   );

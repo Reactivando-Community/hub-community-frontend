@@ -5,6 +5,7 @@ import { Calendar, Clock, MapPin, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { StaggerContainer, StaggerItem } from '@/components/animations';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -80,10 +81,10 @@ export function PastEventsSection() {
   }
 
   return (
-    <div className="space-y-6">
+    <StaggerContainer className="space-y-6">
       {pastEvents.map((event: Event) => (
+        <StaggerItem key={event.id}>
         <Card
-          key={event.id}
           className="overflow-hidden hover:shadow-lg transition-shadow duration-300 opacity-75"
         >
           <div className="relative">
@@ -176,7 +177,8 @@ export function PastEventsSection() {
             </div>
           </CardContent>
         </Card>
+        </StaggerItem>
       ))}
-    </div>
+    </StaggerContainer>
   );
 }

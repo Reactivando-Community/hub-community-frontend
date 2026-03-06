@@ -6,6 +6,7 @@ import { ptBR } from 'date-fns/locale';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
+import { EventsTableSkeleton } from '@/components/admin/events-table-skeleton';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -50,11 +51,7 @@ export default function EventsAdminPage() {
   };
 
   if (loading) {
-    return (
-      <div className="container mx-auto py-10 flex justify-center">
-        <p>Carregando eventos...</p>
-      </div>
-    );
+    return <EventsTableSkeleton />;
   }
 
   if (error) {

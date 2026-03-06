@@ -82,10 +82,32 @@ const config: Config = {
             height: '0',
           },
         },
+        'slide-down': {
+          from: {
+            opacity: '0',
+            transform: 'translateY(-4px) scale(0.96)',
+          },
+          to: {
+            opacity: '1',
+            transform: 'translateY(0) scale(1)',
+          },
+        },
+        'slide-up': {
+          from: {
+            opacity: '1',
+            transform: 'translateY(0) scale(1)',
+          },
+          to: {
+            opacity: '0',
+            transform: 'translateY(-4px) scale(0.96)',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'slide-down': 'slide-down 0.15s ease-out',
+        'slide-up': 'slide-up 0.1s ease-in',
       },
     },
   },

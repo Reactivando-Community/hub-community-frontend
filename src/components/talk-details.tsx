@@ -3,8 +3,10 @@
 import { useQuery } from '@apollo/client';
 import { useEffect } from 'react';
 
+import { FadeIn } from '@/components/animations';
 import { CommentForm } from '@/components/comment-form';
 import { CommentsList } from '@/components/comments-list';
+import { TalkDetailsSkeleton } from '@/components/talk-details-skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ExpandableRichText } from '@/components/ui/expandable-rich-text';
@@ -81,28 +83,17 @@ export function TalkDetails({ talkId }: TalkDetailsProps) {
   }, [talkId, data?.talk]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="animate-pulse">
-          <div className="h-96 bg-gray-300"></div>
-          <div className="container mx-auto px-4 py-12">
-            <div className="h-8 bg-gray-300 rounded mb-4"></div>
-            <div className="h-4 bg-gray-300 rounded mb-2"></div>
-            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <TalkDetailsSkeleton />;
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
             Erro ao carregar palestra
           </h2>
-          <p className="text-gray-600 mb-4">
+          <p className="text-muted-foreground mb-4">
             Não foi possível carregar os detalhes da palestra.
           </p>
           <Button
@@ -123,12 +114,12 @@ export function TalkDetails({ talkId }: TalkDetailsProps) {
 
   if (!talk) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
             Palestra não encontrada
           </h2>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             A palestra que você está procurando não existe ou foi removida.
           </p>
         </div>
@@ -141,7 +132,8 @@ export function TalkDetails({ talkId }: TalkDetailsProps) {
   const eventEndDate = adjustToBrazilTimezone(new Date(event.end_date));
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <FadeIn direction="up" duration={0.3}>
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12">
         {/* Header Section */}
         <div className="mb-8">
@@ -153,7 +145,7 @@ export function TalkDetails({ talkId }: TalkDetailsProps) {
             )}
           </div>
 
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             {talk.title}
           </h1>
 
@@ -219,18 +211,18 @@ export function TalkDetails({ talkId }: TalkDetailsProps) {
 
         {/* Description Section */}
         {talk.description && (
-          <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+          <div className="bg-card rounded-lg shadow-sm p-8 mb-8">
+            <h2 className="text-2xl font-semibold text-foreground mb-6">
               Sobre a Palestra
             </h2>
-            <div className="prose prose-gray max-w-none">
+            <div className="prose prose-neutral dark:prose-invert max-w-none">
               {talk.description ? (
                 <ExpandableRichText
                   content={talk.description}
-                  className="text-gray-700 leading-relaxed"
+                  className="text-muted-foreground leading-relaxed"
                 />
               ) : (
-                <div className="text-gray-700">
+                <div className="text-muted-foreground">
                   <p>Palestra sem descrição</p>
                 </div>
               )}
@@ -240,15 +232,15 @@ export function TalkDetails({ talkId }: TalkDetailsProps) {
 
         {/* Speakers Section */}
         {talk.speakers && talk.speakers.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+          <div className="bg-card rounded-lg shadow-sm p-8 mb-8">
+            <h2 className="text-2xl font-semibold text-foreground mb-6">
               Palestrantes
             </h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {talk.speakers.map(speaker => (
                 <div
                   key={speaker.id}
-                  className="flex flex-col items-center text-center p-6 bg-gray-50 rounded-lg"
+                  className="flex flex-col items-center text-center p-6 bg-background rounded-lg"
                 >
                   <Avatar className="w-24 h-24 mb-4">
                     <AvatarImage
@@ -266,12 +258,12 @@ export function TalkDetails({ talkId }: TalkDetailsProps) {
                     </AvatarFallback>
                   </Avatar>
 
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
                     {speaker.name}
                   </h3>
 
                   {speaker.biography && (
-                    <div className="text-gray-600 text-sm leading-relaxed mb-4">
+                    <div className="text-muted-foreground text-sm leading-relaxed mb-4">
                       <ExpandableRichText
                         content={speaker.biography}
                         className="text-sm"
@@ -302,16 +294,16 @@ export function TalkDetails({ talkId }: TalkDetailsProps) {
         )}
 
         {/* Event Information */}
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+        <div className="bg-card rounded-lg shadow-sm p-8">
+          <h2 className="text-2xl font-semibold text-foreground mb-6">
             Informações do Evento
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-foreground mb-2">
                 {event.title}
               </h3>
-              <div className="space-y-2 text-gray-600">
+              <div className="space-y-2 text-muted-foreground">
                 <p>
                   <span className="font-medium">Data de início:</span>{' '}
                   {eventStartDate.toLocaleDateString('pt-BR', {
@@ -339,10 +331,10 @@ export function TalkDetails({ talkId }: TalkDetailsProps) {
 
             {event.location && (
               <div>
-                <h4 className="text-lg font-medium text-gray-900 mb-2">
+                <h4 className="text-lg font-medium text-foreground mb-2">
                   Localização
                 </h4>
-                <div className="text-gray-600">
+                <div className="text-muted-foreground">
                   {event.location.title && (
                     <p className="font-medium">{event.location.title}</p>
                   )}
@@ -367,8 +359,8 @@ export function TalkDetails({ talkId }: TalkDetailsProps) {
         </div>
 
         {/* Comments Section */}
-        <div className="bg-white rounded-lg shadow-sm p-8 mt-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+        <div className="bg-card rounded-lg shadow-sm p-8 mt-8">
+          <h2 className="text-2xl font-semibold text-foreground mb-6">
             Comentários
           </h2>
 
@@ -412,5 +404,6 @@ export function TalkDetails({ talkId }: TalkDetailsProps) {
         </div>
       </div>
     </div>
+    </FadeIn>
   );
 }

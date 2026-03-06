@@ -73,3 +73,34 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Dropdown/menu animations for Radix UI */
+[data-state='open'][data-radix-popper-content-wrapper] > * {
+  animation: slide-down 0.15s ease-out;
+}
+
+[data-state='closed'][data-radix-popper-content-wrapper] > * {
+  animation: slide-up 0.1s ease-in;
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.96);
+  }
+}

@@ -4,6 +4,8 @@ import { useQuery } from '@apollo/client';
 import { Calendar } from 'lucide-react';
 import Image from 'next/image';
 
+import { FadeIn } from '@/components/animations';
+import { UserProfileDetailsSkeleton } from '@/components/user-profile-details-skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,29 +34,17 @@ export function UserProfileDetails({ username }: UserProfileDetailsProps) {
     );
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-50">
-                <div className="h-48 sm:h-56 lg:h-64 bg-gradient-to-r from-blue-600 to-purple-700 animate-pulse" />
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10 lg:py-12">
-                    <div className="max-w-3xl mx-auto animate-pulse">
-                        <div className="h-8 bg-gray-300 rounded mb-4 w-1/3" />
-                        <div className="h-4 bg-gray-300 rounded mb-6 w-2/3" />
-                        <div className="h-24 bg-gray-200 rounded-lg" />
-                        <div className="h-24 bg-gray-200 rounded-lg mt-4" />
-                    </div>
-                </div>
-            </div>
-        );
+        return <UserProfileDetailsSkeleton />;
     }
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 md:py-16">
+            <div className="min-h-screen bg-background flex items-center justify-center py-12 md:py-16">
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    <h2 className="text-2xl font-bold text-foreground mb-4">
                         Erro ao carregar perfil
                     </h2>
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-muted-foreground mb-4">
                         Não foi possível carregar os detalhes do usuário.
                     </p>
                     <Button
@@ -75,12 +65,12 @@ export function UserProfileDetails({ username }: UserProfileDetailsProps) {
 
     if (!user) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 md:py-16">
+            <div className="min-h-screen bg-background flex items-center justify-center py-12 md:py-16">
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    <h2 className="text-2xl font-bold text-foreground mb-4">
                         Usuário não encontrado
                     </h2>
-                    <p className="text-gray-600">
+                    <p className="text-muted-foreground">
                         O usuário que você está procurando não existe ou foi
                         removido.
                     </p>
@@ -92,7 +82,8 @@ export function UserProfileDetails({ username }: UserProfileDetailsProps) {
     const agenda = user.agenda ?? [];
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <FadeIn direction="up" duration={0.3}>
+        <div className="min-h-screen bg-background">
             {/* Profile hero */}
             <div className="bg-gradient-to-r from-blue-600 to-purple-700 py-10 sm:py-12 lg:py-16 xl:py-20">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -139,7 +130,7 @@ export function UserProfileDetails({ username }: UserProfileDetailsProps) {
                         </CardHeader>
                         <CardContent>
                             {agenda.length === 0 ? (
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-muted-foreground">
                                     Este usuário ainda não tem eventos na
                                     agenda.
                                 </p>
@@ -148,9 +139,9 @@ export function UserProfileDetails({ username }: UserProfileDetailsProps) {
                                     {agenda.map((item, index) => (
                                         <div
                                             key={index}
-                                            className="rounded-lg border border-gray-200 overflow-hidden"
+                                            className="rounded-lg border border-border overflow-hidden"
                                         >
-                                            <div className="relative h-36 sm:h-40 w-full bg-gray-200">
+                                            <div className="relative h-36 sm:h-40 w-full bg-muted">
                                                 {item.event.images &&
                                                 item.event.images.length > 0 ? (
                                                     <Image
@@ -166,13 +157,13 @@ export function UserProfileDetails({ username }: UserProfileDetailsProps) {
                                                         unoptimized
                                                     />
                                                 ) : (
-                                                    <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                                                        <Calendar className="h-10 w-10 text-gray-500" />
+                                                    <div className="h-full w-full bg-muted flex items-center justify-center">
+                                                        <Calendar className="h-10 w-10 text-muted-foreground" />
                                                     </div>
                                                 )}
                                             </div>
                                             <div className="p-3 sm:p-4">
-                                                <p className="font-semibold text-gray-900 line-clamp-2">
+                                                <p className="font-semibold text-foreground line-clamp-2">
                                                     {item.event.title}
                                                 </p>
                                             </div>
@@ -185,5 +176,6 @@ export function UserProfileDetails({ username }: UserProfileDetailsProps) {
                 </div>
             </div>
         </div>
+        </FadeIn>
     );
 }

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
+import { StaggerContainer, StaggerItem } from '@/components/animations';
 import { AuthModal } from '@/components/auth-modal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -126,10 +127,10 @@ export function EventsSection({
   }
 
   return (
-    <div className="space-y-6">
+    <StaggerContainer className="space-y-6">
       {futureEvents.map((event: Event) => (
+        <StaggerItem key={event.id}>
         <Card
-          key={event.id}
           className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
         >
           <div className="relative">
@@ -244,12 +245,13 @@ export function EventsSection({
             </div>
           </CardContent>
         </Card>
+        </StaggerItem>
       ))}
 
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
       />
-    </div>
+    </StaggerContainer>
   );
 }

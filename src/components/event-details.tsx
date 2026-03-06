@@ -14,6 +14,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+import { FadeIn } from '@/components/animations';
+import { EventDetailsSkeleton } from '@/components/event-details-skeleton';
 import { EventRegistrationForm } from '@/components/event-registration-form';
 import { TalkCard } from '@/components/talk-card';
 import { Button } from '@/components/ui/button';
@@ -82,18 +84,7 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background text-foreground">
-        <div className="animate-pulse">
-          <div className="h-96 bg-muted"></div>
-          <div className="container mx-auto px-4 py-12">
-            <div className="h-8 bg-muted rounded mb-4"></div>
-            <div className="h-4 bg-muted rounded mb-2"></div>
-            <div className="h-4 bg-muted rounded w-3/4"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <EventDetailsSkeleton />;
   }
 
   if (error) {
@@ -225,6 +216,7 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
   });
 
   return (
+    <FadeIn direction="up" duration={0.3}>
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="relative min-h-64 md:min-h-80 lg:min-h-96 bg-gradient-to-r from-blue-600 to-purple-700">
@@ -670,5 +662,6 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
         eventTitle={typeof event.title === 'string' ? event.title : undefined}
       />
     </div>
+    </FadeIn>
   );
 }
