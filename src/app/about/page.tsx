@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 
+import { AnimateOnScroll, FadeIn, StaggerContainer, StaggerItem } from '@/components/animations';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -22,17 +23,22 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-purple-600 to-blue-700 text-white py-20">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl font-bold mb-6">Sobre o Hub Community</h1>
-          <p className="text-xl mb-8 max-w-3xl mx-auto">
-            Nossa missão é conectar desenvolvedores e comunidades de tecnologia
-            em todo o Brasil, facilitando o acesso ao conhecimento e promovendo
-            o networking entre profissionais da área.
-          </p>
+          <FadeIn direction="up" delay={0}>
+            <h1 className="text-5xl font-bold mb-6">Sobre o Hub Community</h1>
+          </FadeIn>
+          <FadeIn direction="up" delay={0.1}>
+            <p className="text-xl mb-8 max-w-3xl mx-auto">
+              Nossa missão é conectar desenvolvedores e comunidades de tecnologia
+              em todo o Brasil, facilitando o acesso ao conhecimento e promovendo
+              o networking entre profissionais da área.
+            </p>
+          </FadeIn>
         </div>
       </section>
 
       <div className="container mx-auto px-4 py-16">
         {/* Mission Section */}
+        <AnimateOnScroll>
         <section className="mb-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -64,13 +70,16 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+        </AnimateOnScroll>
 
         {/* Values Section */}
+        <AnimateOnScroll>
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-foreground text-center mb-12">
             Nossos Valores
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StaggerItem>
             <Card className="text-center hover:shadow-lg transition-shadow">
               <CardHeader>
                 <Users className="h-12 w-12 text-blue-600 mx-auto mb-4" />
@@ -83,7 +92,9 @@ export default function AboutPage() {
                 </p>
               </CardContent>
             </Card>
+            </StaggerItem>
 
+            <StaggerItem>
             <Card className="text-center hover:shadow-lg transition-shadow">
               <CardHeader>
                 <Target className="h-12 w-12 text-green-600 mx-auto mb-4" />
@@ -96,7 +107,9 @@ export default function AboutPage() {
                 </p>
               </CardContent>
             </Card>
+            </StaggerItem>
 
+            <StaggerItem>
             <Card className="text-center hover:shadow-lg transition-shadow">
               <CardHeader>
                 <Heart className="h-12 w-12 text-red-600 mx-auto mb-4" />
@@ -109,7 +122,9 @@ export default function AboutPage() {
                 </p>
               </CardContent>
             </Card>
+            </StaggerItem>
 
+            <StaggerItem>
             <Card className="text-center hover:shadow-lg transition-shadow">
               <CardHeader>
                 <Zap className="h-12 w-12 text-yellow-600 mx-auto mb-4" />
@@ -122,48 +137,62 @@ export default function AboutPage() {
                 </p>
               </CardContent>
             </Card>
-          </div>
+            </StaggerItem>
+          </StaggerContainer>
         </section>
+        </AnimateOnScroll>
 
         {/* Stats Section */}
+        <AnimateOnScroll>
         <section className="mb-16">
           <Card className="bg-gradient-to-r from-blue-600 to-purple-700 text-white">
             <CardContent className="p-12">
               <h2 className="text-3xl font-bold text-center mb-12">
                 Nosso Impacto
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+              <StaggerContainer className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+                <StaggerItem>
                 <div>
                   <div className="text-4xl font-bold mb-2">500+</div>
                   <div className="text-lg opacity-90">
                     Comunidades Cadastradas
                   </div>
                 </div>
+                </StaggerItem>
+                <StaggerItem>
                 <div>
                   <div className="text-4xl font-bold mb-2">10K+</div>
                   <div className="text-lg opacity-90">
                     Desenvolvedores Conectados
                   </div>
                 </div>
+                </StaggerItem>
+                <StaggerItem>
                 <div>
                   <div className="text-4xl font-bold mb-2">1K+</div>
                   <div className="text-lg opacity-90">Eventos Realizados</div>
                 </div>
+                </StaggerItem>
+                <StaggerItem>
                 <div>
                   <div className="text-4xl font-bold mb-2">50+</div>
                   <div className="text-lg opacity-90">Cidades Atendidas</div>
                 </div>
-              </div>
+                </StaggerItem>
+              </StaggerContainer>
             </CardContent>
           </Card>
         </section>
+        </AnimateOnScroll>
 
         {/* Team Section */}
+        <AnimateOnScroll>
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-foreground text-center mb-12">
             Nossa Equipe
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <StaggerItem>
             <Card className="text-center hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <Image
@@ -205,7 +234,9 @@ export default function AboutPage() {
                 </div>
               </CardContent>
             </Card>
+            </StaggerItem>
 
+            <StaggerItem>
             <Card className="text-center hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <Image
@@ -243,7 +274,9 @@ export default function AboutPage() {
                 </div>
               </CardContent>
             </Card>
+            </StaggerItem>
 
+            <StaggerItem>
             <Card className="text-center hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <Image
@@ -280,7 +313,9 @@ export default function AboutPage() {
                 </div>
               </CardContent>
             </Card>
+            </StaggerItem>
 
+            <StaggerItem>
             <Card className="text-center hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <Image
@@ -318,10 +353,13 @@ export default function AboutPage() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+            </StaggerItem>
+          </StaggerContainer>
         </section>
+        </AnimateOnScroll>
 
         {/* Contact Section */}
+        <AnimateOnScroll>
         <section>
           <Card className="bg-muted">
             <CardContent className="p-12 text-center">
@@ -365,6 +403,7 @@ export default function AboutPage() {
             </CardContent>
           </Card>
         </section>
+        </AnimateOnScroll>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { Suspense } from 'react';
 
+import { AnimateOnScroll } from '@/components/animations';
 import { CommunityGrid } from '@/components/community-grid';
 import { EventsSection } from '@/components/events-section';
 import { HeroSection } from '@/components/hero-section';
@@ -21,6 +22,7 @@ export default function HomePage() {
       <div className="container mx-auto px-4 py-12">
         <SearchAndFilters />
 
+        <AnimateOnScroll>
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-foreground mb-8">
             Comunidades
@@ -29,7 +31,9 @@ export default function HomePage() {
             <CommunityGrid />
           </Suspense>
         </section>
+        </AnimateOnScroll>
 
+        <AnimateOnScroll>
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-foreground mb-8 flex items-center gap-2">
             <span className="inline-block w-3 h-3 bg-green-500 rounded-full"></span>
@@ -39,7 +43,9 @@ export default function HomePage() {
             <OngoingEventsSection />
           </Suspense>
         </section>
+        </AnimateOnScroll>
 
+        <AnimateOnScroll>
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-foreground mb-8">
             Próximos Eventos
@@ -48,7 +54,9 @@ export default function HomePage() {
             <EventsSection />
           </Suspense>
         </section>
+        </AnimateOnScroll>
 
+        <AnimateOnScroll>
         <section>
           <h2 className="text-3xl font-bold text-foreground mb-8">
             Eventos Passados
@@ -57,6 +65,7 @@ export default function HomePage() {
             <PastEventsSection />
           </Suspense>
         </section>
+        </AnimateOnScroll>
       </div>
     </main>
   );

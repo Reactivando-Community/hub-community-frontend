@@ -3,6 +3,7 @@
 import { Calendar, MapPin, Users } from 'lucide-react';
 import { Suspense, useState } from 'react';
 
+import { FadeIn, StaggerContainer, StaggerItem } from '@/components/animations';
 import { CommunityGrid } from '@/components/community-grid';
 import { CommunityGridSkeleton } from '@/components/community-grid-skeleton';
 import { SearchAndFilters } from '@/components/search-and-filters';
@@ -15,13 +16,18 @@ export default function CommunitiesPage() {
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold mb-4">Todas as Comunidades</h1>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Explore todas as comunidades de tecnologia disponíveis e encontre a
-            sua tribo
-          </p>
+          <FadeIn direction="up" delay={0}>
+            <h1 className="text-4xl font-bold mb-4">Todas as Comunidades</h1>
+          </FadeIn>
+          <FadeIn direction="up" delay={0.1}>
+            <p className="text-xl mb-8 max-w-2xl mx-auto">
+              Explore todas as comunidades de tecnologia disponíveis e encontre a
+              sua tribo
+            </p>
+          </FadeIn>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <StaggerItem>
             <Card className="bg-white/10 border-white/20">
               <CardContent className="p-6 text-center">
                 <Users className="h-8 w-8 mx-auto mb-2" />
@@ -29,6 +35,8 @@ export default function CommunitiesPage() {
                 <p className="text-sm opacity-90">Ativas em todo o Brasil</p>
               </CardContent>
             </Card>
+            </StaggerItem>
+            <StaggerItem>
             <Card className="bg-white/10 border-white/20">
               <CardContent className="p-6 text-center">
                 <MapPin className="h-8 w-8 mx-auto mb-2" />
@@ -36,6 +44,8 @@ export default function CommunitiesPage() {
                 <p className="text-sm opacity-90">Em todos os estados</p>
               </CardContent>
             </Card>
+            </StaggerItem>
+            <StaggerItem>
             <Card className="bg-white/10 border-white/20">
               <CardContent className="p-6 text-center">
                 <Calendar className="h-8 w-8 mx-auto mb-2" />
@@ -43,7 +53,8 @@ export default function CommunitiesPage() {
                 <p className="text-sm opacity-90">Realizados mensalmente</p>
               </CardContent>
             </Card>
-          </div>
+            </StaggerItem>
+          </StaggerContainer>
         </div>
       </section>
 

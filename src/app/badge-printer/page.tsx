@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
+import { FadeIn } from '@/components/animations';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -189,6 +190,7 @@ export default function BadgePrinterPage() {
   return (
     <>
       <main className="container mx-auto py-10 px-4 min-h-screen no-print">
+        <FadeIn direction="up" duration={0.3}>
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight">
@@ -314,6 +316,7 @@ export default function BadgePrinterPage() {
             </Card>
           </div>
         </div>
+        </FadeIn>
       </main>
 
       {/* Printer content is now handled by isolated window in handlePrint */}

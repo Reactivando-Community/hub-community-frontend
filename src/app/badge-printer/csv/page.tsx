@@ -20,6 +20,7 @@ import { useForm } from 'react-hook-form';
 import * as XLSX from 'xlsx';
 import * as z from 'zod';
 
+import { FadeIn } from '@/components/animations';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -438,6 +439,7 @@ export default function CSVBadgePrinterPage() {
 
   return (
     <main className="container mx-auto py-10 px-4 min-h-screen">
+      <FadeIn direction="up" duration={0.3}>
       <div className="max-w-5xl mx-auto space-y-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div className="space-y-2">
@@ -832,6 +834,7 @@ export default function CSVBadgePrinterPage() {
           </Card>
         </div>
       </div>
+      </FadeIn>
     </main>
   );
 }

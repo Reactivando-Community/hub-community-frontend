@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+import { FadeIn } from '@/components/animations';
 import { ProfileSkeleton } from '@/components/profile-skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -56,6 +57,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
+        <FadeIn direction="up" duration={0.3}>
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">
@@ -313,6 +315,7 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+        </FadeIn>
       </div>
     </div>
   );

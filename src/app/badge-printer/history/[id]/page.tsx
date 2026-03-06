@@ -26,6 +26,7 @@ import {
 } from 'recharts';
 import * as XLSX from 'xlsx';
 
+import { FadeIn } from '@/components/animations';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -161,6 +162,7 @@ export default function HistoryDetailPage() {
 
   return (
     <main className="container mx-auto py-10 px-4 min-h-screen">
+      <FadeIn direction="up" duration={0.3}>
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-4">
@@ -418,6 +420,7 @@ export default function HistoryDetailPage() {
           </CardContent>
         </Card>
       </div>
+      </FadeIn>
     </main>
   );
 }

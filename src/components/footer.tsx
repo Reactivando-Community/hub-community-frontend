@@ -3,13 +3,13 @@ import Link from 'next/link';
 
 export function Footer() {
   return (
-    <footer className="bg-gray-900 text-white py-12">
+    <footer className="bg-zinc-900 dark:bg-zinc-950 text-white py-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div>
             <h3 className="text-2xl font-bold mb-4">Hub Community</h3>
-            <p className="text-gray-400 mb-4">
+            <p className="text-zinc-400 mb-4">
               Conectando desenvolvedores e comunidades de tecnologia em todo o
               Brasil.
             </p>
@@ -18,23 +18,23 @@ export function Footer() {
                 target="blank"
                 href="https://github.com/reactivando-Community/"
               >
-                <Github className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
+                <Github className="h-5 w-5 text-zinc-400 hover:text-white cursor-pointer" />
               </a>
-              {/* <Twitter className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" /> */}
+              {/* <Twitter className="h-5 w-5 text-zinc-400 hover:text-white cursor-pointer" /> */}
               <a
                 target="blank"
                 href="https://www.linkedin.com/company/reactivando/posts/?feedView=all"
               >
-                <Linkedin className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
+                <Linkedin className="h-5 w-5 text-zinc-400 hover:text-white cursor-pointer" />
               </a>
-              {/* <Mail className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" /> */}
+              {/* <Mail className="h-5 w-5 text-zinc-400 hover:text-white cursor-pointer" /> */}
             </div>
           </div>
 
           {/* Links */}
           <div>
             <h4 className="font-semibold mb-4">Navegação</h4>
-            <ul className="space-y-2 text-gray-400">
+            <ul className="space-y-2 text-zinc-400">
               <li>
                 <Link href="/" className="hover:text-white">
                   Início
@@ -61,7 +61,7 @@ export function Footer() {
           {/* Support */}
           <div>
             <h4 className="font-semibold mb-4">Suporte</h4>
-            <ul className="space-y-2 text-gray-400">
+            <ul className="space-y-2 text-zinc-400">
               <li>
                 <Link href="/help" className="hover:text-white">
                   Ajuda
@@ -88,7 +88,7 @@ export function Footer() {
           {/* Newsletter */}
           {/* <div>
             <h4 className="font-semibold mb-4">Newsletter</h4>
-            <p className="text-gray-400 mb-4">
+            <p className="text-zinc-400 mb-4">
               Receba as últimas novidades sobre eventos e comunidades.
             </p>
             <div className="flex">
@@ -104,7 +104,7 @@ export function Footer() {
           </div> */}
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+        <div className="border-t border-zinc-800 mt-8 pt-8 text-center text-zinc-400">
           <p>&copy; 2024 Hub Community. Todos os direitos reservados.</p>
         </div>
       </div>

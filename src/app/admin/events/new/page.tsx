@@ -4,6 +4,7 @@ import { useMutation } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 
 import { EventForm } from '@/components/admin/event-form';
+import { FadeIn } from '@/components/animations';
 import { useToast } from '@/hooks/use-toast';
 import { CREATE_EVENT } from '@/lib/queries';
 import { CreateEventResponse, EventInput } from '@/lib/types';
@@ -51,6 +52,7 @@ export default function NewEventPage() {
   };
 
   return (
+    <FadeIn direction="up" duration={0.3}>
     <div className="container mx-auto py-10 px-4 max-w-3xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Novo Evento</h1>
@@ -63,5 +65,6 @@ export default function NewEventPage() {
         <EventForm onSubmit={handleSubmit} isLoading={loading} />
       </div>
     </div>
+    </FadeIn>
   );
 }

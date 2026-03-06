@@ -1,6 +1,7 @@
 'use client';
 
 import { EventForm } from '@/components/admin/event-form';
+import { FadeIn } from '@/components/animations';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { GET_EVENT_BY_SLUG_OR_ID, UPDATE_EVENT } from '@/lib/queries';
@@ -128,6 +129,7 @@ export default function EditEventPage() {
   }
 
   return (
+    <FadeIn direction="up" duration={0.3}>
     <div className="container mx-auto py-10 px-4 max-w-3xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Editar Evento</h1>
@@ -146,5 +148,6 @@ export default function EditEventPage() {
         )}
       </div>
     </div>
+    </FadeIn>
   );
 }
