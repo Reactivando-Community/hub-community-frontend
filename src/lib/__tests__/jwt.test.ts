@@ -24,6 +24,13 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+// ─── intentional failure to test CI blocking ───────────────────────
+describe('CI gate test', () => {
+  it('should fail on purpose', () => {
+    expect(true).toBe(false);
+  });
+});
+
 // ─── decodeToken ───────────────────────────────────────────────────
 describe('decodeToken', () => {
   it('decodes a valid JWT payload', () => {
