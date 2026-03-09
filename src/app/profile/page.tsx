@@ -58,263 +58,265 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <FadeIn direction="up" duration={0.3}>
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              Meu Perfil
-            </h1>
-            <p className="text-muted-foreground">
-              Gerencie suas informações pessoais
-            </p>
-          </div>
+          <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
+                Meu Perfil
+              </h1>
+              <p className="text-muted-foreground">
+                Gerencie suas informações pessoais
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Profile Card */}
-            <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Informações Pessoais
-                  </CardTitle>
-                  <CardDescription>
-                    Suas informações básicas de perfil
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex items-center space-x-4">
-                    <Avatar className="h-20 w-20">
-                      <AvatarImage
-                        src={user?.avatar}
-                        alt={user?.name || user?.username}
-                      />
-                      <AvatarFallback className="text-lg">
-                        {user?.name
-                          ? getInitials(user.name)
-                          : user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="text-xl font-semibold text-foreground">
-                        {user?.name || 'Usuário'}
-                      </h3>
-                      <p className="text-muted-foreground">@{user?.username}</p>
-                      <Badge variant="secondary" className="mt-1">
-                        <Shield className="h-3 w-3 mr-1" />
-                        Membro
-                      </Badge>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Profile Card */}
+              <div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      Informações Pessoais
+                    </CardTitle>
+                    <CardDescription>
+                      Suas informações básicas de perfil
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="h-20 w-20">
+                        <AvatarImage
+                          src={user?.avatar}
+                          alt={user?.name || user?.username}
+                        />
+                        <AvatarFallback className="text-lg">
+                          {user?.name
+                            ? getInitials(user.name)
+                            : user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="text-xl font-semibold text-foreground">
+                          {user?.name || 'Usuário'}
+                        </h3>
+                        <p className="text-muted-foreground">
+                          @{user?.username}
+                        </p>
+                        <Badge variant="secondary" className="mt-1">
+                          <Shield className="h-3 w-3 mr-1" />
+                          Membro
+                        </Badge>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-muted-foreground">
-                        Nome
-                      </label>
-                      <p className="text-foreground">
-                        {user?.name || 'Não informado'}
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-muted-foreground">
-                        Username
-                      </label>
-                      <p className="text-foreground">@{user?.username}</p>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-muted-foreground">
-                        Email
-                      </label>
-                      <p className="text-foreground flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        {user?.email}
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-muted-foreground">
-                        Status
-                      </label>
-                      <Badge
-                        variant="outline"
-                        className="text-emerald-600 dark:text-emerald-500 border-emerald-600 dark:border-emerald-500"
-                      >
-                        Ativo
-                      </Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Agendas Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    Minhas Agendas
-                  </CardTitle>
-                  <CardDescription>
-                    Eventos que você adicionou à sua agenda
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {agendasLoading ? (
-                    <div className="space-y-4">
-                      {[1, 2, 3].map(i => (
-                        <div
-                          key={i}
-                          className="flex items-center gap-3 p-3 rounded-lg border border-border"
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">
+                          Nome
+                        </label>
+                        <p className="text-foreground">
+                          {user?.name || 'Não informado'}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">
+                          Username
+                        </label>
+                        <p className="text-foreground">@{user?.username}</p>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">
+                          Email
+                        </label>
+                        <p className="text-foreground flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
+                          {user?.email}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">
+                          Status
+                        </label>
+                        <Badge
+                          variant="outline"
+                          className="text-emerald-600 dark:text-emerald-500 border-emerald-600 dark:border-emerald-500"
                         >
-                          <div className="h-12 w-12 rounded-lg bg-muted animate-pulse flex-shrink-0" />
-                          <div className="flex-1">
-                            <div className="h-5 w-3/4 bg-muted animate-pulse rounded mb-1" />
-                            <div className="h-3 w-24 bg-muted animate-pulse rounded" />
-                          </div>
-                        </div>
-                      ))}
+                          Ativo
+                        </Badge>
+                      </div>
                     </div>
-                  ) : agendas.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Calendar className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                      <p className="text-muted-foreground mb-2">
-                        Nenhuma agenda encontrada
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Adicione eventos à sua agenda para visualizá-los aqui
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {agendas.slice(0, 5).map(agenda => (
-                        <div
-                          key={agenda.documentId}
-                          className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-accent hover:text-accent-foreground transition-colors"
-                        >
-                          <div className="relative h-12 w-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                            {agenda.event.images &&
-                            agenda.event.images.length > 0 ? (
-                              <Image
-                                src={agenda.event.images[0]}
-                                alt={agenda.event.title}
-                                fill
-                                className="object-cover"
-                                unoptimized
-                              />
-                            ) : (
-                              <div className="h-full w-full bg-muted flex items-center justify-center">
-                                <Calendar className="h-6 w-6 text-muted-foreground" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-foreground truncate">
-                              {agenda.event.title}
-                            </h4>
-                            <div className="flex gap-2 mt-1">
-                              <Link
-                                href={`/events/${agenda.event.documentId}`}
-                                className="text-sm text-primary hover:underline"
-                              >
-                                Ver evento
-                              </Link>
-                              <Link
-                                href={`/agendas/${agenda.documentId}`}
-                                className="text-sm text-emerald-600 dark:text-emerald-500 hover:underline"
-                              >
-                                Ver agenda
-                              </Link>
+                  </CardContent>
+                </Card>
+
+                {/* Agendas Card */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="h-5 w-5" />
+                      Minhas Agendas
+                    </CardTitle>
+                    <CardDescription>
+                      Eventos que você adicionou à sua agenda
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {agendasLoading ? (
+                      <div className="space-y-4">
+                        {[1, 2, 3].map(i => (
+                          <div
+                            key={i}
+                            className="flex items-center gap-3 p-3 rounded-lg border border-border"
+                          >
+                            <div className="h-12 w-12 rounded-lg bg-muted animate-pulse flex-shrink-0" />
+                            <div className="flex-1">
+                              <div className="h-5 w-3/4 bg-muted animate-pulse rounded mb-1" />
+                              <div className="h-3 w-24 bg-muted animate-pulse rounded" />
                             </div>
                           </div>
-                        </div>
-                      ))}
-                      {agendas.length > 5 && (
-                        <div className="text-center pt-2">
-                          <p className="text-sm text-muted-foreground">
-                            E mais {agendas.length - 5} evento
-                            {agendas.length - 5 > 1 ? 's' : ''}...
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                        ))}
+                      </div>
+                    ) : agendas.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Calendar className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+                        <p className="text-muted-foreground mb-2">
+                          Nenhuma agenda encontrada
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Adicione eventos à sua agenda para visualizá-los aqui
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {agendas.slice(0, 5).map(agenda => (
+                          <div
+                            key={agenda.documentId}
+                            className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-accent hover:text-accent-foreground transition-colors"
+                          >
+                            <div className="relative h-12 w-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                              {agenda?.event?.images &&
+                              agenda?.event?.images.length > 0 ? (
+                                <Image
+                                  src={agenda?.event?.images[0]}
+                                  alt={agenda?.event?.title}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
+                                />
+                              ) : (
+                                <div className="h-full w-full bg-muted flex items-center justify-center">
+                                  <Calendar className="h-6 w-6 text-muted-foreground" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-foreground truncate">
+                                {agenda?.event?.title}
+                              </h4>
+                              <div className="flex gap-2 mt-1">
+                                <Link
+                                  href={`/events/${agenda?.event?.documentId}`}
+                                  className="text-sm text-primary hover:underline"
+                                >
+                                  Ver evento
+                                </Link>
+                                <Link
+                                  href={`/agendas/${agenda.documentId}`}
+                                  className="text-sm text-emerald-600 dark:text-emerald-500 hover:underline"
+                                >
+                                  Ver agenda
+                                </Link>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        {agendas.length > 5 && (
+                          <div className="text-center pt-2">
+                            <p className="text-sm text-muted-foreground">
+                              E mais {agendas.length - 5} evento
+                              {agendas.length - 5 > 1 ? 's' : ''}...
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
 
-            {/* Actions Card */}
-            <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Ações</CardTitle>
-                  <CardDescription>Gerencie sua conta</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={() => {
-                      /* TODO: Implement edit profile */
-                    }}
-                  >
-                    <User className="h-4 w-4 mr-2" />
-                    Editar Perfil
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={() => {
-                      /* TODO: Implement settings */
-                    }}
-                  >
-                    <Shield className="h-4 w-4 mr-2" />
-                    Configurações
-                  </Button>
-
-                  <div className="pt-4 border-t">
+              {/* Actions Card */}
+              <div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Ações</CardTitle>
+                    <CardDescription>Gerencie sua conta</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     <Button
-                      variant="destructive"
+                      variant="outline"
                       className="w-full justify-start"
-                      onClick={handleSignOut}
+                      onClick={() => {
+                        /* TODO: Implement edit profile */
+                      }}
                     >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Sair da Conta
+                      <User className="h-4 w-4 mr-2" />
+                      Editar Perfil
                     </Button>
-                  </div>
-                </CardContent>
-              </Card>
 
-              {/* Quick Stats */}
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle className="text-lg">Atividades</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        Comunidades
-                      </span>
-                      <span className="font-semibold">0</span>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        /* TODO: Implement settings */
+                      }}
+                    >
+                      <Shield className="h-4 w-4 mr-2" />
+                      Configurações
+                    </Button>
+
+                    <div className="pt-4 border-t">
+                      <Button
+                        variant="destructive"
+                        className="w-full justify-start"
+                        onClick={handleSignOut}
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Sair da Conta
+                      </Button>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        Eventos Participados
-                      </span>
-                      <span className="font-semibold">0</span>
+                  </CardContent>
+                </Card>
+
+                {/* Quick Stats */}
+                <Card className="mt-6">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Atividades</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          Comunidades
+                        </span>
+                        <span className="font-semibold">0</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          Eventos Participados
+                        </span>
+                        <span className="font-semibold">0</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          Eventos Criados
+                        </span>
+                        <span className="font-semibold">0</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        Eventos Criados
-                      </span>
-                      <span className="font-semibold">0</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
-        </div>
         </FadeIn>
       </div>
     </div>
