@@ -61,7 +61,7 @@ export default function CertificadosAdminPage() {
       try {
         const eventDocId = eventData.eventBySlugOrId.documentId;
         const res = await fetch(
-          `https://manager.hubcommunity.io/api/participants?populate=*&filters[event][$eq]=${eventDocId}&sort=createdAt:desc`
+          `https://manager.hubcommunity.io/api/participants?populate=*&filters[event][documentId][$eq]=${eventDocId}&sort=createdAt:desc`
         );
         if (!res.ok) throw new Error('Falha ao buscar os participantes');
 
