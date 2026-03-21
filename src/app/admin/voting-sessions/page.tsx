@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { ExternalLink, Pencil, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 import { FadeIn } from '@/components/animations';
@@ -159,8 +159,13 @@ export default function VotingSessionsAdminPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Link href={`/votacao/${session.documentId}`} target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" size="icon" title="Acessar Página Pública" type="button">
+                            <ExternalLink className="h-4 w-4" />
+                          </Button>
+                        </Link>
                         <Link href={`/admin/voting-sessions/${session.documentId}`}>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" title="Editar Sessão">
                             <Pencil className="h-4 w-4" />
                           </Button>
                         </Link>
