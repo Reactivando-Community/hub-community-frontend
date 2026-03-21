@@ -23,6 +23,7 @@ export default function VotacaoResultadosPage() {
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
   const [results, setResults] = useState<VotingResult[]>([]);
+  const [visibleCount, setVisibleCount] = useState(0);
 
   const documentId = params.id as string;
 
@@ -46,11 +47,6 @@ export default function VotacaoResultadosPage() {
           // Sort results primarily by votes (descending)
           const sortedResults = [...resultsData].sort((a, b) => b.votes - a.votes);
           setResults(sortedResults);
-
-          // Trigger confetti only if we actually have results and winners
-          if (sortedResults.length > 0) {
-            triggerConfetti();
-          }
         }
       } catch (error) {
         console.error('Error fetching results:', error);
@@ -142,6 +138,26 @@ export default function VotacaoResultadosPage() {
   // The actual winners (Top 3)
   const top3 = results.slice(0, 3);
   const otherResults = results.slice(3);
+  const podiumSize = Math.min(3, results.length);
+
+  const handleRevealNext = () => {
+    if (visibleCount < results.length) {
+      if (visibleCount === podiumSize - 1) {
+        triggerConfetti();
+      }
+      setVisibleCount(prev => prev + 1);
+    }
+  };
+
+  const getButtonText = () => {
+    if (visibleCount < podiumSize) {
+      const place = podiumSize - visibleCount;
+      if (place === 1) return "Revelar 1º Colocado Campeão!";
+      if (place === 2) return "Revelar 2º Colocado";
+      if (place === 3) return "Revelar 3º Colocado";
+    }
+    return "Revelar Próximo Colocado";
+  };
 
   return (
     <div className="min-h-screen bg-muted/30 pb-24 pattern-zigzag-3D">
@@ -170,10 +186,24 @@ export default function VotacaoResultadosPage() {
           </div>
         ) : (
           <>
+            {/* Next Reveal Button */}
+            {visibleCount < results.length && (
+              <div className="flex justify-center mb-16 print:hidden" data-html2canvas-ignore="true">
+                 <Button 
+                   onClick={handleRevealNext}
+                   size="lg"
+                   className="rounded-full bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 gap-3 px-8 py-6 text-lg font-bold text-white shadow-lg shadow-amber-500/25 transition-all hover:scale-105 border-0"
+                 >
+                   <Trophy className="w-6 h-6" />
+                   {getButtonText()}
+                 </Button>
+              </div>
+            )}
+
             {/* Podium for Top 3 */}
             <div className="flex flex-col md:flex-row items-end justify-center gap-4 md:gap-6 mb-16 pt-8">
               {/* 2nd Place */}
-              {top3[1] && (
+              {1 >= podiumSize - visibleCount && top3[1] && (
                 <FadeIn direction="up" delay={0.3} className="w-full md:w-1/3 order-2 md:order-1">
                   <div className="flex flex-col items-center">
                     <div className="bg-background border-2 border-slate-300 rounded-xl p-6 shadow-lg w-full text-center relative z-10 hover:scale-105 transition-transform">
@@ -191,8 +221,8 @@ export default function VotacaoResultadosPage() {
               )}
 
               {/* 1st Place */}
-              {top3[0] && (
-                <FadeIn direction="up" delay={0.6} className="w-full md:w-1/3 order-1 md:order-2">
+              {0 >= podiumSize - visibleCount && top3[0] && (
+                <FadeIn direction="up" delay={0.1} className="w-full md:w-1/3 order-1 md:order-2">
                   <div className="flex flex-col items-center">
                     <div className="bg-gradient-to-br from-yellow-300 to-yellow-500 border-2 border-yellow-400 rounded-xl p-8 shadow-xl w-full text-center relative z-20 scale-105 hover:scale-110 transition-transform">
                       <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-600 rounded-full p-3 border-4 border-white shadow-md">
@@ -209,7 +239,7 @@ export default function VotacaoResultadosPage() {
               )}
 
               {/* 3rd Place */}
-              {top3[2] && (
+              {2 >= podiumSize - visibleCount && top3[2] && (
                 <FadeIn direction="up" delay={0.1} className="w-full md:w-1/3 order-3 md:order-3">
                   <div className="flex flex-col items-center">
                     <div className="bg-background border-2 border-amber-600/50 rounded-xl p-6 shadow-md w-full text-center relative z-10 hover:scale-105 transition-transform">
@@ -228,15 +258,15 @@ export default function VotacaoResultadosPage() {
             </div>
 
             {/* Other Results (if any) */}
-            {otherResults.length > 0 && (
-              <FadeIn direction="up" delay={0.8}>
+            {otherResults.length > 0 && visibleCount > podiumSize && (
+              <FadeIn direction="up" delay={0.2}>
                 <div className="max-w-2xl mx-auto">
                   <h4 className="text-lg font-bold mb-4 text-center text-muted-foreground">Demais Colocações</h4>
                   <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
-                    {otherResults.map((result, index) => (
+                    {otherResults.slice(0, visibleCount - podiumSize).map((result, index, array) => (
                       <div 
                         key={result.option} 
-                        className={`flex items-center justify-between p-4 ${index !== otherResults.length - 1 ? 'border-b' : ''}`}
+                        className={`flex items-center justify-between p-4 ${index !== array.length - 1 ? 'border-b' : ''}`}
                       >
                         <div className="flex items-center gap-4">
                           <span className="font-mono font-bold text-muted-foreground w-6 text-center">

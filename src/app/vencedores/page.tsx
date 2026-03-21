@@ -10,6 +10,7 @@ import { jsPDF } from 'jspdf';
 export default function VencedoresPage() {
   const [winners, setWinners] = useState<string[]>([]);
   const [isExporting, setIsExporting] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(0);
   const captureRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -163,7 +164,7 @@ export default function VencedoresPage() {
 
         <div className="relative z-10 w-full flex flex-col items-center">
             {/* Header */}
-            <header className="text-center mb-20 flex flex-col items-center">
+            <header className="text-center mb-12 flex flex-col items-center">
               <div
                 className="flex items-center justify-center gap-3 px-6 h-11 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[11px] font-black uppercase tracking-[0.25em] mb-8 shadow-[inset_0_0_12px_rgba(59,130,246,0.1)]"
               >
@@ -176,11 +177,32 @@ export default function VencedoresPage() {
               <div className="h-1.5 w-40 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.3)]" />
             </header>
 
+            {/* Next Winner Button */}
+            {visibleCount < winners.length && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-12 flex justify-center print:hidden"
+                data-html2canvas-ignore="true"
+              >
+                 <Button 
+                   onClick={() => setVisibleCount(prev => prev + 1)}
+                   className="rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 shadow-lg shadow-purple-500/25 border-0 gap-3 px-8 py-6 text-lg font-bold text-white transition-all hover:scale-105"
+                 >
+                   <Sparkles className="w-6 h-6" />
+                   {visibleCount === 0 ? "Revelar 1º Ganhador" : "Revelar Próximo Ganhador"}
+                 </Button>
+              </motion.div>
+            )}
+
             {/* List Grid - Centralized and Balanced */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 w-full max-w-6xl">
               {winners.length > 0 ? (
-                winners.map((name, index) => (
-                  <div
+                winners.slice(0, visibleCount).map((name, index) => (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8, y: 30 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     key={`${name}-${index}`}
                     className="relative group pr-4"
                   >
@@ -199,7 +221,7 @@ export default function VencedoresPage() {
                       </div>
                       <PartyPopper className="w-5 h-5 text-blue-500/40 flex-shrink-0" />
                     </div>
-                  </div>
+                  </motion.div>
                 ))
               ) : (
                 <div className="col-span-full text-center py-20">
