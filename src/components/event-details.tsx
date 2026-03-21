@@ -9,6 +9,7 @@ import {
   Share2,
   Users,
   Video,
+  Award,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -346,6 +347,16 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
                 <Share2 className="h-4 w-4 mr-2" />
                 Compartilhar
               </Button>
+              <Link href={`/certificado?event=${event.documentId}`} passHref>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white text-white hover:bg-white hover:text-blue-600 bg-transparent w-full sm:w-auto"
+                >
+                  <Award className="h-4 w-4 mr-2" />
+                  Solicitar meu certificado
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

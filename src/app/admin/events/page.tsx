@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Pencil, Plus, Trash2, Award } from 'lucide-react';
 import Link from 'next/link';
 
 import { EventsTableSkeleton } from '@/components/admin/events-table-skeleton';
@@ -129,8 +129,13 @@ export default function EventsAdminPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Link href={`/admin/events/${event.documentId}/certificados`}>
+                        <Button variant="ghost" size="icon" title="Certificados">
+                          <Award className="h-4 w-4" />
+                        </Button>
+                      </Link>
                       <Link href={`/admin/events/${event.documentId}`}>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" title="Editar">
                           <Pencil className="h-4 w-4" />
                         </Button>
                       </Link>
@@ -138,6 +143,7 @@ export default function EventsAdminPage() {
                         variant="ghost"
                         size="icon"
                         className="text-red-500 hover:text-red-600"
+                        title="Excluir"
                         onClick={() =>
                           event.documentId && handleDelete(event.documentId)
                         }

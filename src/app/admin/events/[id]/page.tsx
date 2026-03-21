@@ -10,6 +10,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { format } from 'date-fns';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { Award } from 'lucide-react';
 
 export default function EditEventPage() {
   const router = useRouter();
@@ -131,11 +132,20 @@ export default function EditEventPage() {
   return (
     <FadeIn direction="up" duration={0.3}>
     <div className="container mx-auto py-10 px-4 max-w-3xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Editar Evento</h1>
-        <p className="text-muted-foreground mt-2">
-          Atualize os detalhes do evento abaixo.
-        </p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Editar Evento</h1>
+          <p className="text-muted-foreground mt-2">
+            Atualize os detalhes do evento abaixo.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => router.push(`/admin/events/${id}/certificados`)}
+        >
+          <Award className="w-4 h-4 mr-2" />
+          Ver Certificados
+        </Button>
       </div>
 
       <div className="border rounded-lg p-6 bg-card">
