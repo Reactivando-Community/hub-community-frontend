@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/auth-context';
 import type { SignInInput, SignUpInput } from '@/lib/types';
-import { Loader2, Lock, Mail, User } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Lock, Mail, Phone, User } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -32,6 +32,10 @@ export function AuthModal({ isOpen, onClose, redirectUrl }: AuthModalProps) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Password visibility
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+
   // Sign In Form
   const [signInData, setSignInData] = useState<SignInInput>({
     identifier: '',
@@ -44,6 +48,7 @@ export function AuthModal({ isOpen, onClose, redirectUrl }: AuthModalProps) {
     name: '',
     password: '',
     username: '',
+    phone: '',
   });
 
   // Password Reset
@@ -110,9 +115,11 @@ export function AuthModal({ isOpen, onClose, redirectUrl }: AuthModalProps) {
     setSuccess('');
     setActiveTab('signin');
     setSignInData({ identifier: '', password: '' });
-    setSignUpData({ email: '', name: '', password: '', username: '' });
+    setSignUpData({ email: '', name: '', password: '', username: '', phone: '' });
     setResetEmail('');
     setShowEmailConfirmation(false);
+    setShowSignInPassword(false);
+    setShowSignUpPassword(false);
     onClose();
   };
 
@@ -164,6 +171,7 @@ export function AuthModal({ isOpen, onClose, redirectUrl }: AuthModalProps) {
                           name: '',
                           password: '',
                           username: '',
+                          phone: '',
                         });
                       }}
                       variant="outline"
@@ -207,15 +215,27 @@ export function AuthModal({ isOpen, onClose, redirectUrl }: AuthModalProps) {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="signin-password"
-                    type="password"
+                    type={showSignInPassword ? 'text' : 'password'}
                     placeholder="Digite sua senha"
                     value={signInData.password}
                     onChange={e =>
                       setSignInData({ ...signInData, password: e.target.value })
                     }
-                    className="pl-10"
+                    className="pl-10 pr-10"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowSignInPassword(!showSignInPassword)}
+                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showSignInPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -286,20 +306,49 @@ export function AuthModal({ isOpen, onClose, redirectUrl }: AuthModalProps) {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="signup-phone">Telefone WhatsApp</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="signup-phone"
+                    type="tel"
+                    placeholder="+55 11 98765-4321"
+                    value={signUpData.phone || ''}
+                    onChange={e =>
+                      setSignUpData({ ...signUpData, phone: e.target.value })
+                    }
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="signup-password">Senha</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="signup-password"
-                    type="password"
+                    type={showSignUpPassword ? 'text' : 'password'}
                     placeholder="Digite uma senha forte"
                     value={signUpData.password}
                     onChange={e =>
                       setSignUpData({ ...signUpData, password: e.target.value })
                     }
-                    className="pl-10"
+                    className="pl-10 pr-10"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showSignUpPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 

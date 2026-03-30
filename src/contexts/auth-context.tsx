@@ -214,6 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: data.signIn.id || undefined,
           email: data.signIn.email || input.identifier,
           username: data.signIn.username || input.identifier.split('@')[0],
+          name: data.signIn.name || undefined,
           phone: data.signIn.phone || undefined,
         };
 
@@ -306,7 +307,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const syncUser = (data: Partial<User>) => {
     if (!state.user) return;
     const updatedUser: User = { ...state.user, ...data };
-    // Only dispatch if something actually changed
     if (JSON.stringify(updatedUser) !== JSON.stringify(state.user)) {
       dispatch({ type: 'UPDATE_USER', payload: { user: updatedUser } });
       if (state.token) {

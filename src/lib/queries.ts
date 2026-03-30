@@ -310,6 +310,8 @@ export const SIGN_UP = gql`
     signUp(input: $input) {
       email
       username
+      name
+      phone
     }
   }
 `;
@@ -320,6 +322,7 @@ export const SIGN_IN = gql`
       token
       email
       username
+      name
       phone
       id
     }
@@ -345,6 +348,24 @@ export const UPDATE_USER_PHONE = gql`
       username
       email
       phone
+    }
+  }
+`;
+
+export const UPDATE_PROFILE = gql`
+  mutation UpdateProfile($input: ProfileInput!) {
+    updateProfile(input: $input) {
+      id
+      username
+      email
+      name
+      phone
+      cover_photo
+      twitter
+      linkedin
+      github
+      website
+      instagram
     }
   }
 `;
@@ -486,7 +507,14 @@ export const GET_USER_BY_USERNAME = gql`
     userByUsername(username: $username) {
       username
       email
+      name
       phone
+      cover_photo
+      twitter
+      linkedin
+      github
+      website
+      instagram
       speaker {
         avatar
       }

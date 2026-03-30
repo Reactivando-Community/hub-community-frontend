@@ -180,6 +180,7 @@ export interface SignUpInput {
   name: string;
   password: string;
   username: string;
+  phone?: string;
 }
 
 export interface SignInInput {
@@ -192,6 +193,7 @@ export interface SignInResponse {
     token: string;
     email: string;
     username: string;
+    name: string;
     phone: string;
     id: string;
   };
