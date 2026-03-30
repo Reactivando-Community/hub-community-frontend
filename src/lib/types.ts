@@ -499,3 +499,52 @@ export interface VotingSessionsResponse {
 export interface VotingSessionResponse {
   data: VotingSession;
 }
+
+// Event Analytics types
+export interface BatchAnalytics {
+  batch_id: string;
+  batch_number: number;
+  value: number;
+  max_quantity: number;
+  sold_quantity: number;
+  revenue: number;
+}
+
+export interface ProductAnalytics {
+  product_id: string;
+  product_name: string;
+  total_signups: number;
+  batches: BatchAnalytics[];
+}
+
+export interface TimelineDataPoint {
+  date: string;
+  count: number;
+}
+
+export interface SignupEntry {
+  name: string;
+  email: string;
+  phone_number: string;
+  created_at: string;
+  product_name: string;
+}
+
+export interface EventAnalytics {
+  event_id: string;
+  event_title: string;
+  event_slug: string;
+  total_signups: number;
+  free_signups: number;
+  paid_signups: number;
+  max_slots: number | null;
+  occupancy_percentage: number | null;
+  certificate_requests: number;
+  products_breakdown: ProductAnalytics[];
+  signups_timeline: TimelineDataPoint[];
+  recent_signups: SignupEntry[];
+}
+
+export interface EventAnalyticsResponse {
+  eventAnalytics: EventAnalytics;
+}

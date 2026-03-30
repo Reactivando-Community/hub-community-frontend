@@ -23,8 +23,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Batch, Product } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Plus, Trash } from 'lucide-react';
-import { useState } from 'react';
+import { Pencil, Plus, Trash } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -71,6 +71,16 @@ export function ProductFormDialog({
       enabled: initialData?.enabled ?? true,
     },
   });
+
+  useEffect(() => {
+    if (open) {
+      setBatches(initialData?.batches || []);
+      form.reset({
+        name: initialData?.name || '',
+        enabled: initialData?.enabled ?? true,
+      });
+    }
+  }, [open, initialData, form]);
 
   const handleAddBatch = (newBatch: ExtendedBatch) => {
     setBatches([...batches, newBatch]);
@@ -165,30 +175,59 @@ export function ProductFormDialog({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {batches.map((batch, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 border rounded-md bg-muted/20"
-                    >
-                      <div>
-                        <div className="font-medium">
-                          Lote {batch.batch_number} - R$ {batch.value}
+                  {batches.map((batch, index) => {
+                    const validUntilDate = batch.valid_until
+                      ? new Date(batch.valid_until)
+                      : null;
+                    const validUntilStr =
+                      validUntilDate && !isNaN(validUntilDate.getTime())
+                        ? validUntilDate.toLocaleDateString('pt-BR')
+                        : 'Não definido';
+
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 border rounded-md bg-muted/20"
+                      >
+                        <div>
+                          <div className="font-medium">
+                            Lote {batch.batch_number} - R$ {batch.value}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Qtd: {batch.max_quantity || 'Ilimitado'} | Válido até:{' '}
+                            {validUntilStr}
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          Qtd: {batch.max_quantity || 'Ilimitado'} | Válido até:{' '}
-                          {new Date(batch.valid_until).toLocaleDateString()}
+                        <div className="flex items-center gap-1">
+                          <BatchFormDialog
+                            onSave={(updatedBatch) => {
+                              const newBatches = [...batches];
+                              newBatches[index] = updatedBatch;
+                              setBatches(newBatches);
+                            }}
+                            initialData={batch}
+                            trigger={
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                type="button"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                            }
+                          />
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            type="button"
+                            onClick={() => handleRemoveBatch(index)}
+                          >
+                            <Trash className="w-4 h-4 text-destructive" />
+                          </Button>
                         </div>
                       </div>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        type="button"
-                        onClick={() => handleRemoveBatch(index)}
-                      >
-                        <Trash className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

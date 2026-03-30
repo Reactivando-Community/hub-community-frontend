@@ -10,7 +10,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { format } from 'date-fns';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Award } from 'lucide-react';
+import { Award, BarChart3 } from 'lucide-react';
 
 export default function EditEventPage() {
   const router = useRouter();
@@ -95,9 +95,11 @@ export default function EditEventPage() {
               data: {
                 max_slots: Number(formData.max_slots) || 0,
                 products: formData.products.map((p: any) => ({
+                  id: p.id || undefined,
                   name: p.name,
                   enabled: p.enabled !== false,
                   batches: (p.batches || []).map((b: any) => ({
+                    id: b.id || undefined,
                     batch_number: Number(b.batch_number) || 1,
                     value: Number(b.value) || 0,
                     max_quantity: Number(b.max_quantity) || 0,
@@ -180,13 +182,22 @@ export default function EditEventPage() {
             Atualize os detalhes do evento abaixo.
           </p>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => router.push(`/admin/events/${id}/certificados`)}
-        >
-          <Award className="w-4 h-4 mr-2" />
-          Ver Certificados
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/admin/events/${id}/analytics`)}
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Analytics
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/admin/events/${id}/certificados`)}
+          >
+            <Award className="w-4 h-4 mr-2" />
+            Certificados
+          </Button>
+        </div>
       </div>
 
       <div className="border rounded-lg p-6 bg-card">

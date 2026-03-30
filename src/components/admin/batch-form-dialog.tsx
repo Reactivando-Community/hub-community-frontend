@@ -22,7 +22,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Batch } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -62,23 +63,48 @@ export function BatchFormDialog({
 }: BatchFormDialogProps) {
   const [open, setOpen] = useState(false);
 
+  const formatDateTimeLocal = (isoString?: string) => {
+    if (!isoString) return '';
+    try {
+      return format(new Date(isoString), "yyyy-MM-dd'T'HH:mm");
+    } catch {
+      return '';
+    }
+  };
+
   const form = useForm<BatchFormValues>({
     resolver: zodResolver(batchSchema),
     defaultValues: {
       batch_number: initialData?.batch_number || 1,
       value: initialData?.value || 0,
       max_quantity: initialData?.max_quantity,
-      valid_from: initialData?.valid_from || '',
-      valid_until: initialData?.valid_until || '',
+      valid_from: formatDateTimeLocal(initialData?.valid_from),
+      valid_until: formatDateTimeLocal(initialData?.valid_until),
       enabled: initialData?.enabled ?? true,
       half_price_eligible: initialData?.half_price_eligible ?? false,
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        batch_number: initialData?.batch_number || 1,
+        value: initialData?.value || 0,
+        max_quantity: initialData?.max_quantity,
+        valid_from: formatDateTimeLocal(initialData?.valid_from),
+        valid_until: formatDateTimeLocal(initialData?.valid_until),
+        enabled: initialData?.enabled ?? true,
+        half_price_eligible: initialData?.half_price_eligible ?? false,
+      });
+    }
+  }, [open, initialData, form]);
+
   const onSubmit = (data: BatchFormValues) => {
     onSave({
       id: initialData?.id || `new-batch-${Date.now()}`,
       ...data,
+      valid_from: data.valid_from ? new Date(data.valid_from).toISOString() : '',
+      valid_until: data.valid_until ? new Date(data.valid_until).toISOString() : '',
       // Ensure max_quantity is number or undefined
       max_quantity: data.max_quantity || 0,
     });

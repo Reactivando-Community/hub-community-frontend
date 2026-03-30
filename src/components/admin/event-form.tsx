@@ -838,9 +838,38 @@ export function EventForm({
                             )}
                           </h4>
                         </div>
-                        <Button variant="ghost" size="sm">
-                          Editar
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <ProductFormDialog
+                            onSave={updatedProduct => {
+                              const newProducts = products.map(p =>
+                                (p.id || p.name) === (product.id || product.name) ? updatedProduct : p
+                              );
+                              setProducts(newProducts);
+                              form.setValue('products', newProducts);
+                            }}
+                            initialData={product}
+                            trigger={
+                              <Button type="button" variant="ghost" size="sm">
+                                Editar
+                              </Button>
+                            }
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => {
+                              const updated = products.filter(
+                                p => (p.id || p.name) !== (product.id || product.name)
+                              );
+                              setProducts(updated);
+                              form.setValue('products', updated);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
 
                       {product.batches && product.batches.length > 0 ? (

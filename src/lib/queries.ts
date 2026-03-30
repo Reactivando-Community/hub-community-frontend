@@ -685,3 +685,43 @@ export const UPDATE_SPEAKER = gql`
     }
   }
 `;
+
+export const GET_EVENT_ANALYTICS = gql`
+  query GetEventAnalytics($slugOrId: String!) {
+    eventAnalytics(slugOrId: $slugOrId) {
+      event_id
+      event_title
+      event_slug
+      total_signups
+      free_signups
+      paid_signups
+      max_slots
+      occupancy_percentage
+      certificate_requests
+      products_breakdown {
+        product_id
+        product_name
+        total_signups
+        batches {
+          batch_id
+          batch_number
+          value
+          max_quantity
+          sold_quantity
+          revenue
+        }
+      }
+      signups_timeline {
+        date
+        count
+      }
+      recent_signups {
+        name
+        email
+        phone_number
+        created_at
+        product_name
+      }
+    }
+  }
+`;
