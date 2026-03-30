@@ -753,3 +753,11 @@ export const GET_EVENT_TRACKING_METRICS = gql`
     }
   }
 `;
+
+export const DELETE_COMMUNITY = gql`
+  mutation DeleteCommunity($id: String!) {
+    deleteCommunity(id: $id) {
+      id
+    }
+  }
+`;

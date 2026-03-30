@@ -2,6 +2,7 @@
 
 import {
   ArrowRight,
+  Building2,
   Calendar,
   Eye,
   EyeOff,
@@ -49,6 +50,16 @@ const adminRoutes = [
     bgColor: 'bg-amber-500/10',
     borderHover: 'hover:border-amber-500/30',
     shadowHover: 'hover:shadow-amber-500/5',
+  },
+  {
+    title: 'Gerenciar Comunidades',
+    description: 'Cadastre comunidades, gerencie logos e informações.',
+    href: '/admin/communities',
+    icon: Building2,
+    color: 'text-cyan-500',
+    bgColor: 'bg-cyan-500/10',
+    borderHover: 'hover:border-cyan-500/30',
+    shadowHover: 'hover:shadow-cyan-500/5',
   },
 ];
 
@@ -176,7 +187,7 @@ export default function AdminPage() {
                 </h1>
               </div>
               <p className="text-muted-foreground ml-[52px]">
-                Gerencie eventos, palestrantes e sessões de votação
+                Gerencie eventos, palestrantes, comunidades e votações
               </p>
             </div>
           </FadeIn>
