@@ -115,7 +115,7 @@ export function UserProfileDetails({ username }: UserProfileDetailsProps) {
                 ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700" />
                 )}
-                <div className="absolute inset-0 bg-black/25" />
+                <div className="absolute inset-0 bg-black/80" />
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent" />
 
                 <div className="relative container mx-auto px-4 sm:px-6 pt-12 pb-20 sm:pt-16 sm:pb-24">

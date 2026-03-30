@@ -241,7 +241,7 @@ export default function EditProfilePage() {
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700" />
         )}
-        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-black/80" />
 
         {/* Back button */}
         <div className="relative container mx-auto px-4 sm:px-6 pt-4 flex items-start justify-between">

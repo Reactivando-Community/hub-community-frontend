@@ -138,7 +138,7 @@ export default function ProfilePage() {
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700" />
         )}
-        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-black/80" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent" />
         <div className="relative container mx-auto px-4 sm:px-6 pt-12 pb-20 sm:pt-16 sm:pb-24">
           <FadeIn direction="up" duration={0.3}>
