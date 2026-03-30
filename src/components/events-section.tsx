@@ -127,124 +127,81 @@ export function EventsSection({
   }
 
   return (
-    <StaggerContainer className="space-y-6">
+    <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {futureEvents.map((event: Event) => (
-        <StaggerItem key={event.id}>
-        <Card
-          className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
-        >
-          <div className="relative">
-            <Image
-              src={
-                Array.isArray(event.images) && event.images.length > 0
-                  ? event.images[0]
-                  : '/placeholder.svg'
-              }
-              alt={typeof event.title === 'string' ? event.title : 'Event'}
-              width={800}
-              height={256}
-              className="h-64 w-full object-cover"
-              unoptimized
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30"></div>
-            <div className="absolute top-4 left-4">
-              <Badge className="bg-blue-600 text-white">
-                {event.communities.length
-                  ? event.communities[0]?.title
-                  : 'Comunidade'}
-              </Badge>
-            </div>
-
-            <div className="absolute bottom-4 left-4 text-white">
-              <h3 className="text-2xl font-bold mb-2">
-                {typeof event.title === 'string' ? event.title : 'Evento'}
-              </h3>
-              <p className="text-sm opacity-90">
-                {event.communities.length
-                  ? event.communities[0]?.title
-                  : 'Comunidade'}
-              </p>
-            </div>
-          </div>
-
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  {typeof event.start_date === 'string'
-                    ? adjustToBrazilTimezone(
-                        new Date(event.start_date)
-                      ).toLocaleDateString('pt-BR')
-                    : 'Data não disponível'}
-                </span>
+        <StaggerItem key={event.id} className="h-full">
+          <Link href={`/events/${event.slug || event.id}`} className="block group h-full">
+            <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60 hover:border-primary/30 h-full flex flex-col">
+              {/* Event Image */}
+              <div className="relative overflow-hidden">
+                <Image
+                  src={
+                    Array.isArray(event.images) && event.images.length > 0
+                      ? event.images[0]
+                      : '/placeholder.svg'
+                  }
+                  alt={typeof event.title === 'string' ? event.title : 'Event'}
+                  width={400}
+                  height={300}
+                  className="aspect-[4/3] w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                  unoptimized
+                />
               </div>
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  {typeof event.start_date === 'string'
-                    ? adjustToBrazilTimezone(
+
+              {/* Event Info */}
+              <CardContent className="p-4 flex flex-col flex-1">
+                {/* Title */}
+                <h3 className="font-bold text-foreground text-lg leading-snug mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                  {typeof event.title === 'string' ? event.title : 'Evento'}
+                </h3>
+
+                {/* Date & Location - single line */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground mb-3">
+                  {typeof event.start_date === 'string' && (
+                    <span>
+                      {adjustToBrazilTimezone(
+                        new Date(event.start_date)
+                      ).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })}{' '}
+                      {adjustToBrazilTimezone(
                         new Date(event.start_date)
                       ).toLocaleTimeString('pt-BR', {
                         hour: '2-digit',
                         minute: '2-digit',
-                      })
-                    : 'Horário não disponível'}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  {event.talks.length} palestras
-                </span>
-              </div>
-              {event.location?.title && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    {event.location.title}
-                  </span>
+                      })}
+                    </span>
+                  )}
+                  {event.location?.title && (
+                    <>
+                      <span className="text-border">·</span>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-3.5 w-3.5" />
+                        {event.location.city || event.location.title}
+                      </span>
+                    </>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <ExpandableRichText
-              content={event?.description || ''}
-              className="text-muted-foreground mb-4"
-            />
-
-            <div className="flex justify-between items-center">
-              <Link href={`/events/${event.slug || event.id}`}>
-                <Button>Ver Detalhes</Button>
-              </Link>
-              {isEventPast(event) ? (
-                <Button disabled variant="outline">
-                  Evento Encerrado
-                </Button>
-              ) : isEventInAgenda(event) ? (
-                <Link
-                  href={`/agendas/${agendas.find(agenda => agenda.event.documentId === event.documentId)?.documentId}`}
-                >
-                  <Button
-                    variant="outline"
-                    className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
-                  >
-                    Ver Minha Agenda
-                  </Button>
-                </Link>
-              ) : (
-                <Button
-                  variant="outline"
-                  onClick={() => handleCreateAgenda(event)}
-                  className="border-primary text-primary hover:bg-primary/10"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Criar Agenda
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                {/* Bottom row - always rendered for consistent height */}
+                <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
+                  <span>
+                    {event.communities.length > 0
+                      ? <>por <span className="font-medium text-foreground/80">{event.communities[0]?.title}</span></>
+                      : '\u00A0'}
+                  </span>
+                  {event.talks.length > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Users className="h-3.5 w-3.5" />
+                      {event.talks.length} palestra{event.talks.length !== 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </StaggerItem>
       ))}
 

@@ -154,8 +154,8 @@ export function TalkCard({
 
   return (
     <div
-      className={`p-4 border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors ${
-        talk.highlight ? 'border-primary/50 bg-primary/10' : ''
+      className={`p-5 bg-card/50 border border-border/30 rounded-2xl hover:border-border/60 hover:shadow-md transition-all duration-200 ${
+        talk.highlight ? 'border-primary/50 bg-primary/5' : ''
       }`}
     >
       <div className="space-y-3">

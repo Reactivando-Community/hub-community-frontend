@@ -5,7 +5,6 @@ import { Calendar } from 'lucide-react';
 import Image from 'next/image';
 
 import { FadeIn } from '@/components/animations';
-import { UserProfileDetailsSkeleton } from '@/components/user-profile-details-skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,6 +15,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { UserProfileDetailsSkeleton } from '@/components/user-profile-details-skeleton';
 import { GET_USER_BY_USERNAME } from '@/lib/queries';
 import { UserProfileResponse } from '@/lib/types';
 
@@ -142,15 +142,14 @@ export function UserProfileDetails({ username }: UserProfileDetailsProps) {
                                             className="rounded-lg border border-border overflow-hidden"
                                         >
                                             <div className="relative h-36 sm:h-40 w-full bg-muted">
-                                                {item.event.images &&
-                                                item.event.images.length > 0 ? (
+                                                {item?.event?.images &&
+                                                item?.event?.images.length > 0 ? (
                                                     <Image
                                                         src={
-                                                            item.event
-                                                                .images[0]
+                                                            item?.event?.images[0]
                                                         }
                                                         alt={
-                                                            item.event.title
+                                                            item?.event?.title
                                                         }
                                                         fill
                                                         className="object-cover"
@@ -164,7 +163,7 @@ export function UserProfileDetails({ username }: UserProfileDetailsProps) {
                                             </div>
                                             <div className="p-3 sm:p-4">
                                                 <p className="font-semibold text-foreground line-clamp-2">
-                                                    {item.event.title}
+                                                    {item?.event?.title}
                                                 </p>
                                             </div>
                                         </div>

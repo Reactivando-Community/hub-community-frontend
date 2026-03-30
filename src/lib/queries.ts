@@ -92,6 +92,14 @@ export const GET_COMMUNITY_BY_SLUG_OR_ID = gql`
         title
         start_date
         end_date
+        images
+        location {
+          title
+          city
+        }
+        talks {
+          id
+        }
       }
       tags {
         id

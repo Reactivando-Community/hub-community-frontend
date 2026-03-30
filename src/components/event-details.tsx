@@ -20,7 +20,6 @@ import { EventDetailsSkeleton } from '@/components/event-details-skeleton';
 import { EventRegistrationForm } from '@/components/event-registration-form';
 import { TalkCard } from '@/components/talk-card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExpandableRichText } from '@/components/ui/expandable-rich-text';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/auth-context';
@@ -185,7 +184,7 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
   // Group talks by day and then by time
   const talksByDay =
     event.talks?.reduce(
-      (acc, talk) => {
+      (acc: Record<string, Record<string, typeof event.talks>>, talk: any) => {
         if (!talk.occur_date) return acc;
 
         const talkDate = adjustToBrazilTimezone(new Date(talk.occur_date));
@@ -219,26 +218,27 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
   return (
     <FadeIn direction="up" duration={0.3}>
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <div className="relative min-h-64 md:min-h-80 lg:min-h-96 bg-gradient-to-r from-blue-600 to-purple-700">
+      {/* Hero Section — full-bleed immersive header */}
+      <div className="relative min-h-72 md:min-h-80 lg:min-h-[420px] bg-black overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-30"
+          className="absolute inset-0 bg-cover bg-center scale-105 transition-transform duration-700"
           style={{
             backgroundImage: `url(${event.images?.[0] || '/placeholder.jpg'})`,
           }}
         ></div>
-        <div className="absolute inset-0 bg-black/40"></div>
+        {/* Gradient overlay — dark at bottom for text readability, transparent at top to show image */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/40"></div>
 
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-4 h-full flex items-center py-8 md:py-12">
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-4 h-full flex items-end pb-10 md:pb-14 pt-24 md:pt-32">
           <div className="text-white max-w-4xl">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-5 drop-shadow-lg">
               {typeof event.title === 'string' ? event.title : 'Evento'}
             </h1>
 
-            <div className="flex flex-wrap gap-4 md:gap-6 mb-6">
+            <div className="flex flex-wrap gap-x-6 gap-y-2 mb-7 text-white/90">
               <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                <span>
+                <Calendar className="h-4 w-4 opacity-70" />
+                <span className="text-sm md:text-base">
                   {startDate.toLocaleDateString('pt-BR', {
                     day: '2-digit',
                     month: 'long',
@@ -246,7 +246,7 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
                   })}
                   {isMultiDay && (
                     <>
-                      {' - '}
+                      {' — '}
                       {endDate.toLocaleDateString('pt-BR', {
                         day: '2-digit',
                         month: 'long',
@@ -257,14 +257,8 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                <span>
-                  {startDate.toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: '2-digit',
-                  })}
-                  {' - '}
+                <Clock className="h-4 w-4 opacity-70" />
+                <span className="text-sm md:text-base">
                   {startDate.toLocaleTimeString('pt-BR', {
                     hour: '2-digit',
                     minute: '2-digit',
@@ -272,12 +266,6 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
                   {isMultiDay && (
                     <>
                       {' até '}
-                      {endDate.toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: '2-digit',
-                      })}
-                      {' - '}
                       {endDate.toLocaleTimeString('pt-BR', {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -288,15 +276,15 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
               </div>
               {event.talks?.length > 0 && Array.isArray(event.talks) && (
                 <div className="flex items-center gap-2">
-                  <Video className="h-5 w-5" />
-                  <span>{event.talks.length} palestras</span>
+                  <Video className="h-4 w-4 opacity-70" />
+                  <span className="text-sm md:text-base">{event.talks.length} palestras</span>
                 </div>
               )}
               {event.communities?.length > 0 &&
                 Array.isArray(event.communities) && (
                   <div className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    <span>{event.communities.length} comunidades</span>
+                    <Users className="h-4 w-4 opacity-70" />
+                    <span className="text-sm md:text-base">{event.communities.length} comunidades</span>
                   </div>
                 )}
             </div>
@@ -304,7 +292,7 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
             <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 size="lg"
-                className="bg-white text-blue-600 hover:bg-gray-100"
+                className="bg-white text-gray-900 hover:bg-gray-100 rounded-full px-6 font-semibold shadow-lg"
                 disabled={!event.subscription_link}
                 onClick={() => {
                   if (!event.subscription_link) {
@@ -323,7 +311,7 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-blue-600 bg-transparent w-full sm:w-auto"
+                className="border-white/40 text-white hover:bg-white/10 bg-white/5 backdrop-blur-sm rounded-full px-6 w-full sm:w-auto"
                 onClick={() => {
                   if (
                     typeof navigator !== 'undefined' &&
@@ -351,7 +339,7 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-blue-600 bg-transparent w-full sm:w-auto"
+                  className="border-white/40 text-white hover:bg-white/10 bg-white/5 backdrop-blur-sm rounded-full px-6 w-full sm:w-auto"
                 >
                   <Award className="h-4 w-4 mr-2" />
                   Solicitar meu certificado
@@ -362,307 +350,299 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* About */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Sobre o Evento</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-muted-foreground leading-relaxed mb-6">
-                  <ExpandableRichText content={event?.description || ''} />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Talks */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Programação</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {event.talks &&
-                Array.isArray(event.talks) &&
-                event.talks.length > 0 ? (
-                  sortedDateKeys.length > 0 ? (
-                    <div className="space-y-8">
-                      {sortedDateKeys.map(dateKey => {
-                        const talksByTime = talksByDay[dateKey];
-                        const sortedTimeKeys = Object.keys(talksByTime).sort(
-                          (a, b) => {
-                            const [aHour, aMin] = a.split(':').map(Number);
-                            const [bHour, bMin] = b.split(':').map(Number);
-                            return aHour * 60 + aMin - (bHour * 60 + bMin);
-                          }
-                        );
-
-                        return (
-                          <div key={dateKey} className="space-y-4">
-                            <h3 className="text-xl font-semibold text-foreground border-b pb-2 border-border">
-                              {dateKey}
-                            </h3>
-                            <Tabs
-                              defaultValue={sortedTimeKeys[0]}
-                              className="w-full"
-                            >
-                              <TabsList className="flex w-full overflow-x-auto">
-                                {sortedTimeKeys.map(timeKey => (
-                                  <TabsTrigger key={timeKey} value={timeKey}>
-                                    {timeKey}
-                                  </TabsTrigger>
-                                ))}
-                              </TabsList>
-                              {sortedTimeKeys.map(timeKey => (
-                                <TabsContent
-                                  key={timeKey}
-                                  value={timeKey}
-                                  className="space-y-4 mt-6"
-                                >
-                                  {talksByTime[timeKey]?.map(talk => (
-                                    <TalkCard
-                                      key={talk.documentId}
-                                      talk={talk}
-                                      eventDocumentId={event.documentId}
-                                      eventSlug={event.slug}
-                                      agendaDocumentId={agenda?.documentId}
-                                      isInAgenda={isTalkInAgenda(
-                                        talk.documentId
-                                      )}
-                                      onAgendaChange={handleAgendaChange}
-                                      onOptimisticUpdate={
-                                        handleOptimisticUpdate
-                                      }
-                                      showAgendaActions={isAuthenticated}
-                                    />
-                                  ))}
-                                </TabsContent>
-                              ))}
-                            </Tabs>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {event.talks.map(talk => (
-                        <TalkCard
-                          key={talk.documentId}
-                          talk={talk}
-                          eventDocumentId={event.documentId}
-                          eventSlug={event.slug}
-                          agendaDocumentId={agenda?.documentId}
-                          isInAgenda={isTalkInAgenda(talk.documentId)}
-                          onAgendaChange={handleAgendaChange}
-                          onOptimisticUpdate={handleOptimisticUpdate}
-                          showAgendaActions={isAuthenticated}
-                        />
-                      ))}
-                    </div>
-                  )
-                ) : (
-                  <p className="text-muted-foreground text-center py-8">
-                    Programação ainda não divulgada.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Communities */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Comunidades Organizadoras</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {event.communities &&
-                  Array.isArray(event.communities) &&
-                  event.communities.length > 0 ? (
-                    event.communities.map(community => (
-                      <Link
-                        key={community.id}
-                        href={`/communities/${community.slug || community.id}`}
-                        className="block"
-                      >
-                        <div className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors">
-                          {community.images?.[0] && (
-                            <Image
-                              src={community.images[0]}
-                              alt={community.title}
-                              width={48}
-                              height={48}
-                              className="w-12 h-12 rounded-lg object-cover"
-                              unoptimized
-                            />
-                          )}
-                          <div className="flex-1">
-                            <h4 className="font-semibold">
-                              {typeof community.title === 'string'
-                                ? community.title
-                                : 'Comunidade'}
-                            </h4>
-                            {community.short_description &&
-                              typeof community.short_description ===
-                                'string' && (
-                                <p className="text-sm text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">
-                                  {community.short_description}
-                                </p>
-                              )}
-                          </div>
-                          <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                      </Link>
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground text-center py-8">
-                      Nenhuma comunidade organizadora listada.
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Event Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Informações do Evento</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium text-foreground">Data</p>
-                    <p className="text-sm text-muted-foreground">
-                      {startDate.toLocaleDateString('pt-BR', {
-                        weekday: 'long',
+      {/* Quick Info Bar — floating summary strip */}
+      <div className="container mx-auto px-4 -mt-5 relative z-10 mb-8">
+        <div className="bg-card/80 backdrop-blur-md border border-border/50 rounded-2xl shadow-lg px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-6">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Data</p>
+                <p className="text-sm font-medium text-foreground">
+                  {startDate.toLocaleDateString('pt-BR', {
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: 'short',
+                  })}
+                  {isMultiDay && (
+                    <>
+                      {' — '}
+                      {endDate.toLocaleDateString('pt-BR', {
                         day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
+                        month: 'short',
                       })}
-                      {isMultiDay && (
-                        <>
-                          <br />
-                          até{' '}
-                          {endDate.toLocaleDateString('pt-BR', {
-                            weekday: 'long',
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric',
-                          })}
-                        </>
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium text-foreground">Horário</p>
-                    <p className="text-sm text-muted-foreground">
-                      {startDate.toLocaleTimeString('pt-BR', {
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className="w-px h-8 bg-border/50 hidden sm:block" />
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Horário</p>
+                <p className="text-sm font-medium text-foreground">
+                  {startDate.toLocaleTimeString('pt-BR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                  {isMultiDay && (
+                    <>
+                      {' — '}
+                      {endDate.toLocaleTimeString('pt-BR', {
                         hour: '2-digit',
                         minute: '2-digit',
                       })}
-                      {isMultiDay && (
-                        <>
-                          {' - '}
-                          {endDate.toLocaleTimeString('pt-BR', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </>
-                      )}
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+            {event.location && (
+              <>
+                <div className="w-px h-8 bg-border/50 hidden sm:block" />
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Local</p>
+                    <p className="text-sm font-medium text-foreground">
+                      {event.location.title || event.location.city || 'A definir'}
                     </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Location */}
-            {event.location && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Localização</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {event.location.title && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium text-foreground">
-                        {event.location.title}
-                      </span>
-                    </div>
-                  )}
-                  {event.location.full_address && (
-                    <div className="text-sm text-muted-foreground">
-                      {event.location.full_address}
-                    </div>
-                  )}
-                  {event.location.city && (
-                    <div className="text-sm text-muted-foreground">
-                      {event.location.city}
-                    </div>
-                  )}
-                  {event.location.google_maps_url && (
-                    <a
-                      href={event.location.google_maps_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block mt-2"
-                    >
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-primary text-primary hover:bg-primary/10"
-                      >
-                        Ver no Google Maps
-                      </Button>
-                    </a>
-                  )}
-                </CardContent>
-              </Card>
+              </>
             )}
-
-            {/* Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Estatísticas</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Palestras</span>
-                  <span className="font-semibold text-foreground">
-                    {Array.isArray(event.talks) ? event.talks.length : 0}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Comunidades</span>
-                  <span className="font-semibold text-foreground">
-                    {Array.isArray(event.communities)
-                      ? event.communities.length
-                      : 0}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Duração</span>
-                  <span className="font-semibold text-foreground">
-                    {(() => {
-                      const diffMs = endDate.getTime() - startDate.getTime();
-                      const diffHours = diffMs / (1000 * 60 * 60);
-                      return diffHours.toFixed(0) + ' horas';
-                    })()}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+          </div>
+          <div className="flex items-center gap-4 text-sm">
+            <div className="text-center">
+              <p className="text-lg font-bold text-foreground">{Array.isArray(event.talks) ? event.talks.length : 0}</p>
+              <p className="text-xs text-muted-foreground">Palestras</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-foreground">{Array.isArray(event.communities) ? event.communities.length : 0}</p>
+              <p className="text-xs text-muted-foreground">Comunidades</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-foreground">
+                {(() => {
+                  const diffMs = endDate.getTime() - startDate.getTime();
+                  const diffHours = diffMs / (1000 * 60 * 60);
+                  return diffHours.toFixed(0) + 'h';
+                })()}
+              </p>
+              <p className="text-xs text-muted-foreground">Duração</p>
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Main Content — single-column flowing layout */}
+      <div className="container mx-auto px-4 pb-16 space-y-12">
+
+        {/* About Section */}
+        {event?.description && (
+          <section>
+            <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+              Sobre o Evento
+            </h2>
+            <div className="text-muted-foreground leading-relaxed max-w-3xl">
+              <ExpandableRichText content={event?.description || ''} />
+            </div>
+          </section>
+        )}
+
+        {/* Location Section */}
+        {event.location && (
+          <>
+            <div className="border-t border-border/40" />
+            <section>
+              <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-primary" />
+                Localização
+              </h2>
+              <div className="bg-card/50 border border-border/30 rounded-2xl p-6 max-w-2xl">
+                {event.location.title && (
+                  <p className="font-semibold text-foreground text-lg mb-1">
+                    {event.location.title}
+                  </p>
+                )}
+                {event.location.full_address && (
+                  <p className="text-muted-foreground text-sm mb-1">
+                    {event.location.full_address}
+                  </p>
+                )}
+                {event.location.city && (
+                  <p className="text-muted-foreground text-sm mb-3">
+                    {event.location.city}
+                  </p>
+                )}
+                {event.location.google_maps_url && (
+                  <a
+                    href={event.location.google_maps_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-full border-primary text-primary hover:bg-primary/10"
+                    >
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Ver no Google Maps
+                    </Button>
+                  </a>
+                )}
+              </div>
+            </section>
+          </>
+        )}
+
+        {/* Schedule / Talks Section */}
+        <div className="border-t border-border/40" />
+        <section>
+          <h2 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+            <Video className="h-5 w-5 text-primary" />
+            Programação
+          </h2>
+          {event.talks &&
+          Array.isArray(event.talks) &&
+          event.talks.length > 0 ? (
+            sortedDateKeys.length > 0 ? (
+              <div className="space-y-10">
+                {sortedDateKeys.map(dateKey => {
+                  const talksByTime = talksByDay[dateKey];
+                  const sortedTimeKeys = Object.keys(talksByTime).sort(
+                    (a, b) => {
+                      const [aHour, aMin] = a.split(':').map(Number);
+                      const [bHour, bMin] = b.split(':').map(Number);
+                      return aHour * 60 + aMin - (bHour * 60 + bMin);
+                    }
+                  );
+
+                  return (
+                    <div key={dateKey} className="space-y-4">
+                      <h3 className="text-lg font-semibold text-foreground inline-flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-primary" />
+                        {dateKey}
+                      </h3>
+                      <Tabs
+                        defaultValue={sortedTimeKeys[0]}
+                        className="w-full"
+                      >
+                        <TabsList className="flex w-full overflow-x-auto rounded-xl">
+                          {sortedTimeKeys.map(timeKey => (
+                            <TabsTrigger key={timeKey} value={timeKey} className="rounded-lg">
+                              {timeKey}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                        {sortedTimeKeys.map(timeKey => (
+                          <TabsContent
+                            key={timeKey}
+                            value={timeKey}
+                            className="space-y-4 mt-6"
+                          >
+                            {talksByTime[timeKey]?.map((talk: any) => (
+                              <TalkCard
+                                key={talk.documentId}
+                                talk={talk}
+                                eventDocumentId={event.documentId}
+                                eventSlug={event.slug}
+                                agendaDocumentId={agenda?.documentId}
+                                isInAgenda={isTalkInAgenda(
+                                  talk.documentId
+                                )}
+                                onAgendaChange={handleAgendaChange}
+                                onOptimisticUpdate={
+                                  handleOptimisticUpdate
+                                }
+                                showAgendaActions={isAuthenticated}
+                              />
+                            ))}
+                          </TabsContent>
+                        ))}
+                      </Tabs>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {event.talks.map((talk: any) => (
+                  <TalkCard
+                    key={talk.documentId}
+                    talk={talk}
+                    eventDocumentId={event.documentId}
+                    eventSlug={event.slug}
+                    agendaDocumentId={agenda?.documentId}
+                    isInAgenda={isTalkInAgenda(talk.documentId)}
+                    onAgendaChange={handleAgendaChange}
+                    onOptimisticUpdate={handleOptimisticUpdate}
+                    showAgendaActions={isAuthenticated}
+                  />
+                ))}
+              </div>
+            )
+          ) : (
+            <div className="text-muted-foreground text-center py-10 bg-card/30 rounded-2xl border border-border/20">
+              Programação ainda não divulgada.
+            </div>
+          )}
+        </section>
+
+        {/* Communities Section */}
+        <div className="border-t border-border/40" />
+        <section>
+          <h2 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+            <Users className="h-5 w-5 text-primary" />
+            Comunidades Organizadoras
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {event.communities &&
+            Array.isArray(event.communities) &&
+            event.communities.length > 0 ? (
+              event.communities.map((community: any) => (
+                <Link
+                  key={community.id}
+                  href={`/communities/${community.slug || community.id}`}
+                  className="group block"
+                >
+                  <div className="flex items-center gap-4 p-4 bg-card/50 border border-border/30 rounded-2xl hover:border-primary/30 hover:bg-card/80 hover:shadow-md transition-all duration-200">
+                    {community.images?.[0] && (
+                      <Image
+                        src={community.images[0]}
+                        alt={community.title}
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 rounded-xl object-cover"
+                        unoptimized
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                        {typeof community.title === 'string'
+                          ? community.title
+                          : 'Comunidade'}
+                      </h4>
+                      {community.short_description &&
+                        typeof community.short_description ===
+                          'string' && (
+                        <p className="text-sm text-muted-foreground truncate">
+                          {community.short_description}
+                        </p>
+                      )}
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <p className="text-muted-foreground text-center py-8 col-span-full">
+                Nenhuma comunidade organizadora listada.
+              </p>
+            )}
+          </div>
+        </section>
       </div>
 
       {/* Registration Form */}
