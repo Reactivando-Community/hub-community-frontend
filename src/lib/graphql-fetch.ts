@@ -12,20 +12,20 @@ const SITE_URL =
 
 /**
  * Generates the OG image URL for social media previews.
- * Uses the image URL directly when it's an absolute URL from the CMS,
- * since the CMS is configured to allow cross-origin access.
- * Falls back to the proxy route for any edge cases.
+ * Always proxies images through our /api/og-image route so that
+ * social media crawlers (WhatsApp, Instagram, Facebook) can reliably
+ * access the image from our domain — avoiding CORS/firewall issues
+ * with the CMS domain.
  */
 export function getOgImageUrl(imageUrl: string | undefined): string {
   if (!imageUrl) return `${SITE_URL}/images/logo-square.png`;
 
-  // If it's already an absolute URL, use it directly
-  if (imageUrl.startsWith('http')) {
-    return imageUrl;
-  }
+  // Always proxy through our API route for reliable social preview
+  const fullUrl = imageUrl.startsWith('http')
+    ? imageUrl
+    : `${SITE_URL}${imageUrl}`;
 
-  // For relative URLs, proxy through our API route
-  return `${SITE_URL}/api/og-image?url=${encodeURIComponent(imageUrl)}`;
+  return `${SITE_URL}/api/og-image?url=${encodeURIComponent(fullUrl)}`;
 }
 
 interface GraphQLResponse<T> {
