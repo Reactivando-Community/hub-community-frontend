@@ -17,7 +17,7 @@ import { FadeIn, StaggerContainer, StaggerItem } from '@/components/animations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-const ADMIN_PASSWORD = 'hub@2026';
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? '';
 
 const adminRoutes = [
   {

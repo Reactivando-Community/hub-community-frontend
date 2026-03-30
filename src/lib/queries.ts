@@ -519,7 +519,9 @@ export const GET_USER_BY_USERNAME = gql`
         avatar
       }
       agenda {
+        documentId
         event {
+          documentId
           title
           images
         }
