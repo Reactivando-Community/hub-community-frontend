@@ -1,4 +1,9 @@
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+import {
+  ApolloClient,
+  InMemoryCache,
+  createHttpLink,
+  ApolloLink,
+} from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { isTokenExpired } from './jwt';
@@ -45,24 +50,21 @@ function createApolloClient() {
     };
   });
 
-  // Error handling link
   const errorLink = onError(({ graphQLErrors, networkError }) => {
-    if (graphQLErrors) {
-      graphQLErrors.forEach(({ message, locations, path }) => {
-        console.error(
-          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
-        );
-      });
-    }
-
-    if (networkError) {
-      console.error(`[Network error]: ${networkError}`);
+    if (process.env.NODE_ENV === 'development') {
+      if (graphQLErrors) {
+        graphQLErrors.forEach(({ message, path }) => {
+          console.error(`[GraphQL error]: ${message} (path: ${path})`);
+        });
+      }
+      if (networkError) {
+        console.error(`[Network error]: ${networkError}`);
+      }
     }
   });
 
-  // Criação do cliente Apollo
   return new ApolloClient({
-    link: errorLink.concat(authLink.concat(httpLink)),
+    link: ApolloLink.from([errorLink, authLink, httpLink]),
     cache: new InMemoryCache({
       typePolicies: {
         Query: {
@@ -83,11 +85,14 @@ function createApolloClient() {
     }),
     defaultOptions: {
       watchQuery: {
-        errorPolicy: 'ignore',
+        errorPolicy: 'all',
         notifyOnNetworkStatusChange: true,
       },
       query: {
-        errorPolicy: 'ignore',
+        errorPolicy: 'all',
+      },
+      mutate: {
+        errorPolicy: 'all',
       },
     },
   });
