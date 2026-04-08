@@ -73,6 +73,7 @@ export default function EditEventPage() {
         is_online: formData.is_online || false,
         call_link: formData.call_link || '',
         description: formData.description,
+        images: formData.images,
         location: formData.location?.id || formData.location, // Send ID string
         communities: formData.communityId ? [formData.communityId] : [],
         talks: formData.talks?.map((t: any) => t.id) || [],

@@ -77,6 +77,7 @@ const eventSchema = z.object({
   call_link: z.string().optional(),
   description: z.any().optional(), // Complex type, validating as any for now
   location: z.any().optional(), // Stores the ID or object during interaction
+  images: z.array(z.any()).optional(),
   communityId: z.string().optional(),
   talks: z.array(z.any()).optional(),
   products: z.array(z.any()).optional(),
@@ -346,27 +347,29 @@ export function EventForm({
   };
 
   const handleFormSubmit = async (data: EventFormValues) => {
-    const eventId = await onSubmit(data);
+    let uploadedImagesResult: string[] | undefined = undefined;
 
-    // Upload cover image if a new file was selected
-    if (eventId && coverImageFile) {
+    // 1. Upload cover image FIRST if a new file was selected
+    if (coverImageFile) {
       setIsUploading(true);
       try {
-        const formData = new FormData();
-        formData.append('files', coverImageFile);
-        // Strapi auto-links the file to the event via these params
-        formData.append('ref', 'api::event.event');
-        formData.append('refId', eventId);
-        formData.append('field', 'images');
+        const uploadData = new FormData();
+        uploadData.append('files', coverImageFile);
+        // DO NOT append ref, refId, field to avoid 500 error when ID is UUID
 
         const uploadRes = await fetch('/api/upload', {
           method: 'POST',
-          body: formData,
+          body: uploadData,
         });
 
         if (!uploadRes.ok) {
           const errData = await uploadRes.json();
           console.error('Upload error:', errData);
+        } else {
+          const res = await uploadRes.json();
+          if (res && res.length > 0) {
+             uploadedImagesResult = res.map((r: any) => r.id?.toString() || r.documentId);
+          }
         }
       } catch (err) {
         console.error('Error uploading cover image:', err);
@@ -374,6 +377,14 @@ export function EventForm({
         setIsUploading(false);
       }
     }
+
+    // 2. Add uploaded image ID to formData so the mutation can use it
+    if (uploadedImagesResult) {
+       data.images = uploadedImagesResult;
+    }
+
+    // 3. Submit
+    await onSubmit(data);
   };
 
   return (

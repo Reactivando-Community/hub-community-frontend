@@ -340,6 +340,7 @@ export interface EventInput {
   products?: string[]; // IDs of products
   communities?: string[]; // IDs of communities
   location?: string; // ID of location
+  images?: string[]; // IDs/String representation of images
   talks?: string[]; // IDs of talks
 }
 
