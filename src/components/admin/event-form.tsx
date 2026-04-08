@@ -509,7 +509,7 @@ export function EventForm({
                   <FormItem>
                     <FormLabel>Vagas Máximas</FormLabel>
                     <FormControl>
-                      <Input type="number" min={1} {...field} />
+                      <Input type="number" min={1} {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -559,6 +559,7 @@ export function EventForm({
                         <Input
                           placeholder="https://meet.google.com/xxx-yyyy-zzz"
                           {...field}
+                          value={field.value ?? ''}
                         />
                       </FormControl>
                       <FormDescription>
@@ -739,7 +740,7 @@ export function EventForm({
                   <FormItem>
                     <FormLabel>Token de Integração Pix Aí</FormLabel>
                     <FormControl>
-                      <Input placeholder="Token do Pix Aí" {...field} />
+                      <Input placeholder="Token do Pix Aí" {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormDescription>
                       Insira o token de integração do Pix Aí.
