@@ -221,43 +221,9 @@ export default function EventAnalyticsPage() {
 
   const trackingMetrics = trackingData?.eventTrackingMetrics;
 
-  if (loading) {
-    return (
-      <div className="container mx-auto py-20 flex flex-col items-center justify-center gap-4 min-h-[60vh]">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
-          <Loader2 className="w-10 h-10 animate-spin text-primary relative" />
-        </div>
-        <p className="text-sm text-muted-foreground animate-pulse">
-          Carregando analytics...
-        </p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto py-20 text-center space-y-4">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-destructive/10 mb-4">
-          <BarChart3 className="w-8 h-8 text-destructive" />
-        </div>
-        <h2 className="text-xl font-semibold">Erro ao carregar analytics</h2>
-        <p className="text-sm text-muted-foreground max-w-md mx-auto">
-          {error.message}
-        </p>
-        <Button variant="outline" onClick={() => router.back()} className="mt-4">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Voltar
-        </Button>
-      </div>
-    );
-  }
-
-  const analytics = data?.eventAnalytics;
-
   /* ─── CSV Download Handler ──────────────────────────────────── */
+  // Must be declared before any early returns to respect Rules of Hooks
   const downloadParticipantsCsv = useCallback(async () => {
-    if (!analytics) return;
     setIsDownloading(true);
 
     try {
@@ -332,7 +298,41 @@ export default function EventAnalyticsPage() {
     } finally {
       setIsDownloading(false);
     }
-  }, [analytics, id]);
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto py-20 flex flex-col items-center justify-center gap-4 min-h-[60vh]">
+        <div className="relative">
+          <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
+          <Loader2 className="w-10 h-10 animate-spin text-primary relative" />
+        </div>
+        <p className="text-sm text-muted-foreground animate-pulse">
+          Carregando analytics...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-20 text-center space-y-4">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-destructive/10 mb-4">
+          <BarChart3 className="w-8 h-8 text-destructive" />
+        </div>
+        <h2 className="text-xl font-semibold">Erro ao carregar analytics</h2>
+        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+          {error.message}
+        </p>
+        <Button variant="outline" onClick={() => router.back()} className="mt-4">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Voltar
+        </Button>
+      </div>
+    );
+  }
+
+  const analytics = data?.eventAnalytics;
 
   if (!analytics) {
     return (
