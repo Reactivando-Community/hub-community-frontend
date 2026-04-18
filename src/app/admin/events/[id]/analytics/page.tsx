@@ -906,8 +906,8 @@ export default function EventAnalyticsPage() {
           </Card>
         )}
 
-        {/* ─── Recent Signups ──────────────────────────────────── */}
-        {analytics.recent_signups.length > 0 && (
+        {/* ─── All Signups ─────────────────────────────────────── */}
+        {(analytics.all_signups?.length ?? 0) > 0 && (
           <Card className="border-border/50">
             <CardHeader className="flex flex-row items-start justify-between space-y-0">
               <div>
@@ -916,7 +916,7 @@ export default function EventAnalyticsPage() {
                   Participantes
                 </CardTitle>
                 <CardDescription className="mt-1.5">
-                  {analytics.recent_signups.length} inscrições
+                  {analytics.all_signups?.length ?? 0} inscrições
                 </CardDescription>
               </div>
               <Button
@@ -947,7 +947,7 @@ export default function EventAnalyticsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {analytics.recent_signups.map((signup, index) => {
+                    {analytics.all_signups?.map((signup, index) => {
                       const date = signup.created_at
                         ? new Date(signup.created_at).toLocaleDateString(
                             'pt-BR',
