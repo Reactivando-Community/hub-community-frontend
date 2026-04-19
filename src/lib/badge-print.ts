@@ -22,26 +22,38 @@ export function buildBadgeHtml(data: BadgePrintData): string {
   const link = data.link ? escapeHtml(data.link) : '';
   const qrDataUrl = data.qrDataUrl;
 
+  // @page is declared as 50x100mm portrait (not the physical 100x50mm landscape)
+  // because Chrome's --kiosk-printing dispatches in portrait by default and ignores
+  // the OS printer driver's landscape default. The .badge-container is rotated -90°
+  // to be visually landscape inside the portrait page; the printer then rotates the
+  // whole page 90° to fit the landscape label, producing upright content.
+  // If the printed label comes out upside-down, swap rotate(-90deg) for rotate(90deg)
+  // and translate(50mm, 0) for translate(0, 100mm).
   return `<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8">
     <title>Crachá - ${fullName}</title>
     <style>
-      @page { size: 100mm 50mm; margin: 0; }
+      @page { size: 50mm 100mm; margin: 0; }
       html, body {
         margin: 0 !important;
         padding: 0 !important;
-        width: 100mm !important;
-        height: 50mm !important;
+        width: 50mm !important;
+        height: 100mm !important;
         overflow: hidden !important;
         background: white;
         font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       }
       .badge-container {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 100mm;
         height: 50mm;
         padding: 4mm 5mm;
+        transform: translate(0, 100mm) rotate(-90deg);
+        transform-origin: top left;
         display: flex;
         flex-direction: row;
         align-items: center;

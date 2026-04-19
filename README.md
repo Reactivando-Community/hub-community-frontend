@@ -216,16 +216,34 @@ There is no JavaScript API to verify the right printer or orientation is in
 effect — a real print is the only check. If two labels feed, return to
 step 2.
 
+### Why `@page` is declared as portrait, not landscape
+
+`src/lib/badge-print.ts` declares `@page { size: 50mm 100mm; margin: 0; }`
+(portrait) and rotates the badge `-90deg` via CSS transform. This looks
+backwards but is intentional: Chrome's `--kiosk-printing` dispatches in
+portrait by default and **ignores the OS printer driver's landscape default**
+(it bypasses the print preview that normally reads driver settings). Telling
+Chrome the page is portrait + rotating content compensates: the printer then
+rotates the page 90° to fit the landscape label, and the visual badge ends up
+upright.
+
+In normal (non-kiosk) Chrome the print preview will look "tall" — that's
+expected. The physical print is correct.
+
 ### Troubleshooting
 
 - **Print dialog still appears**: kill any Chrome process using
   `/tmp/badge-kiosk-chrome` and relaunch. The flag is silently ignored when
   the user-data-dir is already in use.
-- **Two labels feed per print**: driver orientation is portrait. Re-do
-  step 2.
+- **Badge prints upside-down on the label**: rotation direction is wrong for
+  your printer's feed direction. In `src/lib/badge-print.ts`'s
+  `buildBadgeHtml`, swap `transform: translate(0, 100mm) rotate(-90deg)`
+  for `transform: translate(50mm, 0) rotate(90deg)`.
 - **Wrong printer prints**: Tomate isn't the OS default. Re-do step 1.
-- **Content cut off on the right**: paper size in the driver doesn't match
-  100mm × 50mm.
+- **Content cut off**: the printer driver's custom paper size doesn't accept
+  50mm × 100mm portrait. Add it as a second custom size in the driver, or
+  edit `@page` in `src/lib/badge-print.ts` to use whatever portrait
+  dimensions your driver allows.
 
 ## 🌐 Environment Variables
 

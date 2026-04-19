@@ -18,15 +18,26 @@ describe('buildBadgeHtml', () => {
     expect(html).not.toContain('class="link-text"');
   });
 
-  it('emits @page size 100mm 50mm with zero margin', () => {
+  it('emits @page size 50mm 100mm portrait (kiosk-mode workaround)', () => {
     const html = buildBadgeHtml(baseData);
-    expect(html).toContain('@page { size: 100mm 50mm; margin: 0; }');
+    expect(html).toContain('@page { size: 50mm 100mm; margin: 0; }');
   });
 
-  it('sets body height to match @page (50mm), not the legacy 45mm', () => {
+  it('sets body to portrait dimensions matching @page', () => {
     const html = buildBadgeHtml(baseData);
-    expect(html).toContain('height: 50mm !important');
-    expect(html).not.toContain('height: 45mm');
+    expect(html).toContain('width: 50mm !important');
+    expect(html).toContain('height: 100mm !important');
+  });
+
+  it('rotates badge container -90deg to compensate for printer rotation', () => {
+    const html = buildBadgeHtml(baseData);
+    expect(html).toContain('transform: translate(0, 100mm) rotate(-90deg)');
+    expect(html).toContain('transform-origin: top left');
+  });
+
+  it('keeps badge container at intrinsic 100mm x 50mm landscape dimensions', () => {
+    const html = buildBadgeHtml(baseData);
+    expect(html).toMatch(/\.badge-container\s*\{[^}]*width:\s*100mm[^}]*height:\s*50mm/);
   });
 
   it('emits page-break-inside: avoid on the badge container', () => {
