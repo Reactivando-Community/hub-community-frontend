@@ -12,7 +12,10 @@
     "start": "next start -p 4010",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "print:kiosk:mac": "open -na 'Google Chrome' --args --kiosk-printing --user-data-dir=/tmp/badge-kiosk-chrome 'http://localhost:4010/badge-printer'",
+    "print:kiosk:linux": "google-chrome --kiosk-printing --user-data-dir=/tmp/badge-kiosk-chrome http://localhost:4010/badge-printer",
+    "print:kiosk:win": "start chrome --kiosk-printing --user-data-dir=%TEMP%\\badge-kiosk-chrome http://localhost:4010/badge-printer"
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",

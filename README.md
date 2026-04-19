@@ -166,6 +166,67 @@ npm run format       # Format code with Prettier
 npm run format:check # Check code formatting
 ```
 
+## 🖨️ Badge Printer Kiosk Mode
+
+The `/badge-printer` and `/badge-printer/csv` pages can be used in Chrome's
+kiosk-printing mode so badges go straight to the printer with no print dialog.
+Tested with the **Tomate 2074A** thermal label printer (100mm × 50mm landscape).
+
+Setup is required in this exact order — step 2 is what stops two labels from
+feeding per print under kiosk mode (where the print dialog can't be opened to
+fix orientation manually).
+
+### 1. Set the Tomate 2074A as the macOS default printer
+
+`--kiosk-printing` always uses the OS default printer; without this, prints
+silently go to the wrong device. Set it in **System Settings → Printers &
+Scanners → Default printer**.
+
+### 2. Configure the driver for 100mm × 50mm landscape
+
+- **System Settings → Printers & Scanners → Tomate 2074A → Options & Supplies**.
+- Create a custom paper size: width **100mm × height 50mm**. Name it
+  `Crachá 100x50`.
+- Set **default orientation to Landscape**.
+- Set this preset as the printer's default.
+- From any app, do *File → Print* → expand dialog → confirm orientation
+  defaults to landscape with no manual change.
+
+**Why this matters**: Chrome's `@page { size: 100mm 50mm }` declares
+dimensions, but Chrome takes orientation from the driver. A portrait-default
+driver causes the 100mm-wide layout to overflow onto a second page; a
+landscape-default driver lets Chrome honor the dimensions and produces exactly
+one label.
+
+### 3. Launch Chrome in kiosk-printing mode
+
+```bash
+pnpm print:kiosk:mac     # macOS
+pnpm print:kiosk:linux   # Linux
+pnpm print:kiosk:win     # Windows
+```
+
+Each script uses a dedicated `--user-data-dir` so the flag isn't ignored when
+a normal Chrome window is already open. Adjust the URL inside `package.json`
+if you're not running locally on `:4010`.
+
+### 4. Print one test badge before each event
+
+There is no JavaScript API to verify the right printer or orientation is in
+effect — a real print is the only check. If two labels feed, return to
+step 2.
+
+### Troubleshooting
+
+- **Print dialog still appears**: kill any Chrome process using
+  `/tmp/badge-kiosk-chrome` and relaunch. The flag is silently ignored when
+  the user-data-dir is already in use.
+- **Two labels feed per print**: driver orientation is portrait. Re-do
+  step 2.
+- **Wrong printer prints**: Tomate isn't the OS default. Re-do step 1.
+- **Content cut off on the right**: paper size in the driver doesn't match
+  100mm × 50mm.
+
 ## 🌐 Environment Variables
 
 Create a `.env` file in the root directory:

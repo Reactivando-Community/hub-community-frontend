@@ -64,6 +64,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { printBadge } from '@/lib/badge-print';
 
 const formSchema = z.object({
   link: z.string().url({
@@ -250,114 +251,30 @@ export default function CSVBadgePrinterPage() {
     }
   };
 
-  const handlePrint = (
+  const handlePrint = async (
     name: string,
     link: string,
     eventName: string,
     rowIndex?: number
   ) => {
-    const printWindow = window.open(
-      'about:blank',
-      '_blank',
-      'width=800,height=600'
-    );
-    if (!printWindow) {
-      alert('Por favor, permita pop-ups para imprimir.');
-      return;
-    }
-
     const qrDataUrl =
       document
         .getElementById(`qr-canvas-${name}`)
         ?.querySelector('canvas')
         ?.toDataURL() || '';
 
-    const html = `
-      <!DOCTYPE html>
-      <html lang="pt-BR">
-        <head>
-          <meta charset="UTF-8">
-          <title>Crachá - ${name}</title>
-          <style>
-            @page { size: 100mm 50mm; margin: 0; }
-            html, body {
-              margin: 0 !important;
-              padding: 0 !important;
-              width: 100mm !important;
-              height: 45mm !important;
-              overflow: hidden !important;
-              background: white;
-              font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            }
-            .badge-container {
-              width: 100mm;
-              height: 45mm;
-              padding: 5mm;
-              display: flex;
-              flex-direction: row;
-              align-items: center;
-              justify-content: space-between;
-              box-sizing: border-box;
-            }
-            .info-section {
-              display: flex;
-              flex-direction: column;
-              justify-content: space-around;
-              height: 100%;
-              flex: 1;
-              padding-right: 5mm;
-            }
-            .logo-text { font-size: 10pt; font-weight: 800; letter-spacing: 1px; color: black; text-transform: uppercase; }
-            .name-text {
-              font-size: 18pt;
-              font-weight: 900;
-              text-transform: uppercase;
-              margin: 0;
-              line-height: 1.1;
-              color: black;
-              word-wrap: break-word;
-              max-width: 60mm;
-            }
-            .qr-section { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2mm; }
-            .qr-image { display: block; width: 32mm; height: 32mm; }
-            .label-info { font-size: 6pt; color: #000; text-transform: uppercase; font-weight: bold; }
-            .separator { height: 2pt; width: 15mm; background: black; margin: 3mm 0; }
-          </style>
-        </head>
-        <body>
-          <div class="badge-container">
-            <div class="info-section">
-              <div class="logo-text">${eventName}</div>
-              <div class="badge-main">
-                <h1 class="name-text">${name}</h1>
-                <div class="separator"></div>
-              </div>
-            </div>
-            <div class="qr-section">
-              <img src="${qrDataUrl}" class="qr-image" />
-            </div>
-          </div>
-          <script>
-            window.onload = () => {
-              window.focus();
-              window.print();
-              setTimeout(() => { window.close(); }, 500);
-            };
-          </script>
-        </body>
-      </html>
-    `;
+    await printBadge({
+      fullName: name,
+      qrDataUrl,
+      logoText: eventName,
+      link,
+    });
 
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
-
-    // Mark as printed if it's from the list
     if (rowIndex !== undefined) {
       setCsvData(prevData => {
         const newData = [...prevData];
         newData[rowIndex] = { ...newData[rowIndex], __printed: true };
-        updateCurrentHistoryItem(newData); // We need to be careful with sync here
+        updateCurrentHistoryItem(newData);
         return newData;
       });
     }

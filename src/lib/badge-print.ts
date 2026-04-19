@@ -1,0 +1,173 @@
+export interface BadgePrintData {
+  fullName: string;
+  qrDataUrl: string;
+  logoText: string;
+  link?: string;
+}
+
+const PRINT_TIMEOUT_MS = 1500;
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+export function buildBadgeHtml(data: BadgePrintData): string {
+  const fullName = escapeHtml(data.fullName);
+  const logoText = escapeHtml(data.logoText);
+  const link = data.link ? escapeHtml(data.link) : '';
+  const qrDataUrl = data.qrDataUrl;
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <title>Crachá - ${fullName}</title>
+    <style>
+      @page { size: 100mm 50mm; margin: 0; }
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100mm !important;
+        height: 50mm !important;
+        overflow: hidden !important;
+        background: white;
+        font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      .badge-container {
+        width: 100mm;
+        height: 50mm;
+        padding: 4mm 5mm;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+        overflow: hidden;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .info-section {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        height: 100%;
+        flex: 1;
+        padding-right: 5mm;
+        overflow: hidden;
+      }
+      .logo-text {
+        font-size: 10pt;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: black;
+        text-transform: uppercase;
+      }
+      .name-text {
+        font-size: 18pt;
+        font-weight: 900;
+        text-transform: uppercase;
+        margin: 0;
+        line-height: 1.1;
+        color: black;
+        word-wrap: break-word;
+        max-width: 60mm;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .link-text {
+        font-size: 7.5pt;
+        color: #000;
+        margin: 0;
+        word-break: break-all;
+        max-width: 60mm;
+        font-weight: 600;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .qr-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2mm;
+      }
+      .qr-image {
+        display: block;
+        width: 32mm;
+        height: 32mm;
+      }
+      .separator {
+        height: 2pt;
+        width: 15mm;
+        background: black;
+        margin: 3mm 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="badge-container">
+      <div class="info-section">
+        <div class="logo-text">${logoText}</div>
+        <div class="badge-main">
+          <h1 class="name-text">${fullName}</h1>
+          <div class="separator"></div>
+          ${link ? `<p class="link-text">${link}</p>` : ''}
+        </div>
+      </div>
+      <div class="qr-section">
+        <img src="${qrDataUrl}" class="qr-image" alt="QR Code" />
+      </div>
+    </div>
+  </body>
+</html>`;
+}
+
+export function printBadge(data: BadgePrintData): Promise<void> {
+  return new Promise(resolve => {
+    if (typeof document === 'undefined') {
+      resolve();
+      return;
+    }
+
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.srcdoc = buildBadgeHtml(data);
+
+    let cleaned = false;
+    const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
+      iframe.remove();
+      resolve();
+    };
+
+    iframe.onload = () => {
+      const win = iframe.contentWindow;
+      if (!win) {
+        cleanup();
+        return;
+      }
+      win.addEventListener('afterprint', cleanup);
+      win.focus();
+      win.print();
+      setTimeout(cleanup, PRINT_TIMEOUT_MS);
+    };
+
+    document.body.appendChild(iframe);
+  });
+}
