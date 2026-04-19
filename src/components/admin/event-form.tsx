@@ -6,6 +6,7 @@ import { LocationFormDialog } from '@/components/admin/location-form-dialog';
 import { ProductFormDialog } from '@/components/admin/product-form-dialog';
 import { TalkFormDialog } from '@/components/admin/talk-form-dialog';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -69,8 +70,8 @@ const eventSchema = z.object({
   end_date: z.string({
     required_error: 'A data de término é obrigatória.',
   }),
-  max_slots: z.coerce.number().min(1, {
-    message: 'O número de vagas deve ser pelo menos 1.',
+  max_slots: z.coerce.number().min(0, {
+    message: 'O número de vagas não pode ser negativo.',
   }),
   pixai_token_integration: z.string().optional(),
   is_online: z.boolean().optional(),
@@ -108,6 +109,7 @@ export function EventForm({
   isLoading,
 }: EventFormProps) {
   const router = useRouter();
+  const { toast: formToast } = useToast();
   const isEditing = !!initialData?.id;
 
   // Location State
@@ -389,7 +391,26 @@ export function EventForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(handleFormSubmit, (errors) => {
+          // Auto-navigate to the tab that contains the first error
+          const generalFields = ['title', 'slug', 'start_date', 'end_date', 'max_slots', 'description', 'location', 'communityId', 'pixai_token_integration', 'is_online', 'call_link', 'images'];
+          const scheduleFields = ['talks'];
+          const productFields = ['products'];
+          const errorKeys = Object.keys(errors);
+          if (errorKeys.some(k => generalFields.includes(k))) {
+            setActiveTab('general');
+          } else if (errorKeys.some(k => scheduleFields.includes(k))) {
+            setActiveTab('schedule');
+          } else if (errorKeys.some(k => productFields.includes(k))) {
+            setActiveTab('products');
+          }
+          const firstError = Object.values(errors)[0];
+          formToast({
+            variant: 'destructive',
+            title: 'Campos obrigatórios',
+            description: (firstError as any)?.message || 'Corrija os erros para salvar.',
+          });
+        })} className="space-y-8">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="general">Geral</TabsTrigger>

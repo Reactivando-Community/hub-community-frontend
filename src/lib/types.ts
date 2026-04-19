@@ -579,3 +579,20 @@ export interface CredentialCheckedInData {
   credentialCheckedIn: EventSignup;
 }
 
+export interface ImportSignupsResponse {
+  importSignups: {
+    success: boolean;
+    message?: string;
+    imported_count: number;
+    skipped_count: number;
+    errors?: string[];
+  };
+}
+
+export interface ManualSignupResponse {
+  manualSignup: {
+    success: boolean;
+    message?: string;
+    account_created: boolean;
+  };
+}

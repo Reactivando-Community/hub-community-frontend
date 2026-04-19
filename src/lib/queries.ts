@@ -809,3 +809,24 @@ export const CREDENTIAL_CHECKED_IN = gql`
   }
 `;
 
+export const IMPORT_SIGNUPS = gql`
+  mutation ImportSignups($eventSlug: String!, $batchId: String!, $signups: [SignupImportInput!]!) {
+    importSignups(eventSlug: $eventSlug, batchId: $batchId, signups: $signups) {
+      success
+      message
+      imported_count
+      skipped_count
+      errors
+    }
+  }
+`;
+
+export const MANUAL_SIGNUP = gql`
+  mutation ManualSignup($eventSlug: String!, $batchId: String!, $input: ManualSignupInput!) {
+    manualSignup(eventSlug: $eventSlug, batchId: $batchId, input: $input) {
+      success
+      message
+      account_created
+    }
+  }
+`;

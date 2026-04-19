@@ -143,11 +143,11 @@ export default function EventSignupPage() {
   const isAlreadySignedUp = signupCheckData?.isUserSignedUp?.is_signed_up;
   const callLink = signupCheckData?.isUserSignedUp?.call_link;
 
-  // Raw products with enabled batches
+  // Raw products with enabled batches (exclude hidden products like import-only batches)
   const allAvailableProducts: Product[] = useMemo(
     () =>
       (event?.products || []).filter(
-        (p: Product) => p.enabled && p.batches?.some((b: Batch) => b.enabled)
+        (p: Product) => p.enabled && (p as any).can_be_listed !== false && p.batches?.some((b: Batch) => b.enabled)
       ),
     [event?.products]
   );

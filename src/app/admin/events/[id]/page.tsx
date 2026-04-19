@@ -10,7 +10,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { format } from 'date-fns';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Award, BarChart3 } from 'lucide-react';
+import { Award, BarChart3, FileSpreadsheet } from 'lucide-react';
 
 export default function EditEventPage() {
   const router = useRouter();
@@ -202,6 +202,13 @@ export default function EditEventPage() {
           >
             <Award className="w-4 h-4 mr-2" />
             Certificados
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/admin/events/${id}/import-signups`)}
+          >
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Importar Inscrições
           </Button>
         </div>
       </div>
