@@ -272,7 +272,7 @@ export function EventDetails({ slugOrId }: EventDetailsProps) {
           Ver imagem
         </div>
 
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-4 pt-24 md:pt-28 pb-8">
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-4 pt-48 md:pt-64 lg:pt-80 pb-12">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg max-w-4xl">
             {typeof event.title === 'string' ? event.title : 'Evento'}
           </h1>

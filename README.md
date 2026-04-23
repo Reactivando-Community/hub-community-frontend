@@ -166,6 +166,124 @@ npm run format       # Format code with Prettier
 npm run format:check # Check code formatting
 ```
 
+## 🖨️ Badge Printer — Configuração de Kiosk
+
+A página `/badge-printer` permite gerar e imprimir crachás (100mm × 50mm) diretamente
+em uma impressora térmica de etiquetas. Usando o modo **kiosk-printing** do Chrome,
+a impressão é enviada direto para a impressora sem diálogo de impressão.
+
+Testado com a impressora **4BARCODE 4B-2074A (Tomate 2074A)**.
+
+### Pré-requisitos
+
+- macOS com CUPS (pré-instalado)
+- Impressora 4BARCODE 4B-2074A instalada e configurada
+- Google Chrome
+- Etiquetas 100mm × 50mm (4in × 2in)
+
+### 1. Definir a impressora como padrão do macOS
+
+`--kiosk-printing` sempre usa a impressora padrão do sistema.
+
+**System Settings → Printers & Scanners → Default printer** → selecione a 4BARCODE.
+
+### 2. Adicionar tamanho de papel `w4h2` ao PPD
+
+O PPD padrão da impressora **não inclui** um tamanho de papel que corresponda à etiqueta
+100mm × 50mm. Sem essa configuração, o Chrome usa papéis maiores (como `w2h4` ou `w4h6`)
+e consome múltiplas etiquetas por impressão.
+
+Execute este comando para adicionar o tamanho `w4h2` (4in × 2in = 288pt × 144pt):
+
+```bash
+sudo sed -i.bak \
+  -e 's/^\*DefaultPageSize: w4h6/*DefaultPageSize: w4h2/' \
+  -e '/^\*PageSize w2h4/i\
+*PageSize w4h2/4 x 2 (4.00 in x 2.00 in): "<<\/PageSize[288 144]\/ImagingBBox null>>setpagedevice"' \
+  -e 's/^\*DefaultPageRegion: w4h6/*DefaultPageRegion: w4h2/' \
+  -e '/^\*PageRegion w2h4/i\
+*PageRegion w4h2/4 x 2 (4.00 in x 2.00 in): "<<\/PageSize[288 144]\/ImagingBBox null>>setpagedevice"' \
+  -e '/^\*ImageableArea w2h4/i\
+*ImageableArea w4h2/4 x 2 (4.00 in x 2.00 in): "0 0 288 144"' \
+  -e '/^\*PaperDimension w2h4/i\
+*PaperDimension w4h2/4 x 2 (4.00 in x 2.00 in): "288 144"' \
+  /etc/cups/ppd/_4BARCODE_4B_2074A.ppd
+```
+
+> **Nota:** O nome do arquivo PPD pode variar. Verifique com:
+> `ls /etc/cups/ppd/ | grep -i barcode`
+
+### 3. Configurar o papel padrão e reiniciar o CUPS
+
+```bash
+# Define w4h2 como padrão a nível de sistema
+sudo lpadmin -p _4BARCODE_4B_2074A -o PageSize=w4h2
+
+# Reinicia o serviço CUPS para carregar o PPD atualizado
+sudo launchctl stop org.cups.cupsd && sudo launchctl start org.cups.cupsd
+
+# Define w4h2 como padrão a nível de usuário
+lpoptions -p _4BARCODE_4B_2074A -o PageSize=w4h2
+sudo lpoptions -p _4BARCODE_4B_2074A -o PageSize=w4h2
+```
+
+Verificar se a configuração foi aplicada:
+
+```bash
+lpoptions -p _4BARCODE_4B_2074A | grep -o 'PageSize=[^ ]*'
+# Deve exibir: PageSize=w4h2
+```
+
+### 4. Iniciar o Chrome em modo kiosk-printing
+
+```bash
+sudo /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
+  --kiosk-printing http://localhost:3000/badge-printer
+```
+
+> **Por que `sudo`?** O Chrome com `--kiosk-printing` precisa de permissões elevadas
+> para acessar as configurações de impressora a nível de sistema (definidas via `lpadmin`).
+
+### 5. Imprimir um crachá de teste
+
+Após preencher o formulário e clicar em **Imprimir**, o crachá deve sair em
+**uma única etiqueta**, na orientação horizontal (landscape), sem diálogo de impressão.
+
+### Como funciona (detalhes técnicos)
+
+O CSS de impressão em `src/lib/badge-print.ts` usa:
+
+```css
+@page { size: 4in 2in; margin: 0; }
+```
+
+Isso bate exatamente com o tamanho de papel `w4h2` no PPD (288pt × 144pt), que por sua
+vez bate com a etiqueta física de 100mm × 50mm. O Chrome encontra o match direto no
+driver da impressora e envia o conteúdo sem rotação.
+
+O badge é renderizado via um `<iframe>` invisível com `srcdoc`, que chama `window.print()`
+automaticamente. No modo kiosk, o Chrome pula o diálogo e envia direto.
+
+### Troubleshooting
+
+| Problema | Causa | Solução |
+|---|---|---|
+| Consome 2 etiquetas | PPD sem tamanho `w4h2` | Refaça o passo 2 |
+| Imprime na vertical | CUPS não reiniciado | Reinicie CUPS (passo 3) |
+| Diálogo aparece | Chrome sem `--kiosk-printing` | Feche todas as janelas do Chrome e relance com a flag |
+| Impressora errada | Não é a padrão do macOS | Refaça o passo 1 |
+| Conteúdo cortado | Papel não configurado | Verifique com `lpoptions -p _4BARCODE_4B_2074A \| grep PageSize` |
+| De cabeça pra baixo | Feed direction da impressora | Adicione `transform: rotate(180deg)` ao `.badge-container` em `badge-print.ts` |
+
+### Restaurar PPD original
+
+Se precisar reverter a modificação do PPD:
+
+```bash
+sudo cp /etc/cups/ppd/_4BARCODE_4B_2074A.ppd.bak /etc/cups/ppd/_4BARCODE_4B_2074A.ppd
+sudo launchctl stop org.cups.cupsd && sudo launchctl start org.cups.cupsd
+```
+
 ## 🌐 Environment Variables
 
 Create a `.env` file in the root directory:

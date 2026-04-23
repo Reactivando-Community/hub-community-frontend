@@ -6,6 +6,9 @@ import {
 } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { createClient } from 'graphql-ws';
 import { isTokenExpired } from './jwt';
 
 // Lazy initialization to avoid creating the client during server-side module evaluation
@@ -13,8 +16,10 @@ let client: ApolloClient<any> | null = null;
 
 function createApolloClient() {
   // Configuração da URL do BFF GraphQL
+  const httpUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:4000/graphql';
+
   const httpLink = createHttpLink({
-    uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:4000/graphql',
+    uri: httpUrl,
   });
 
   // Middleware para adicionar headers de autenticação

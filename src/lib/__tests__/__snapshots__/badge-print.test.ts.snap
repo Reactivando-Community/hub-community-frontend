@@ -1,0 +1,116 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`buildBadgeHtml > matches snapshot for a normal badge 1`] = `
+"<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <title>Crachá - João Silva</title>
+    <style>
+      @page { size: 50mm 100mm; margin: 0; }
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 50mm !important;
+        height: 100mm !important;
+        overflow: hidden !important;
+        background: white;
+        font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      .badge-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100mm;
+        height: 50mm;
+        padding: 4mm 5mm;
+        transform: translate(0, 100mm) rotate(-90deg);
+        transform-origin: top left;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+        overflow: hidden;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .info-section {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        height: 100%;
+        flex: 1;
+        padding-right: 5mm;
+        overflow: hidden;
+      }
+      .logo-text {
+        font-size: 10pt;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: black;
+        text-transform: uppercase;
+      }
+      .name-text {
+        font-size: 18pt;
+        font-weight: 900;
+        text-transform: uppercase;
+        margin: 0;
+        line-height: 1.1;
+        color: black;
+        word-wrap: break-word;
+        max-width: 60mm;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .link-text {
+        font-size: 7.5pt;
+        color: #000;
+        margin: 0;
+        word-break: break-all;
+        max-width: 60mm;
+        font-weight: 600;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .qr-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2mm;
+      }
+      .qr-image {
+        display: block;
+        width: 32mm;
+        height: 32mm;
+      }
+      .separator {
+        height: 2pt;
+        width: 15mm;
+        background: black;
+        margin: 3mm 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="badge-container">
+      <div class="info-section">
+        <div class="logo-text">COMUNIDADE</div>
+        <div class="badge-main">
+          <h1 class="name-text">João Silva</h1>
+          <div class="separator"></div>
+          <p class="link-text">https://linkedin.com/in/joaosilva</p>
+        </div>
+      </div>
+      <div class="qr-section">
+        <img src="data:image/png;base64,FAKEQR" class="qr-image" alt="QR Code" />
+      </div>
+    </div>
+  </body>
+</html>"
+`;

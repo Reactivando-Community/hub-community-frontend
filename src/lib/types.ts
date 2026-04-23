@@ -340,6 +340,7 @@ export interface EventInput {
   products?: string[]; // IDs of products
   communities?: string[]; // IDs of communities
   location?: string; // ID of location
+  images?: string[]; // IDs/String representation of images
   talks?: string[]; // IDs of talks
 }
 
@@ -542,9 +543,56 @@ export interface EventAnalytics {
   certificate_requests: number;
   products_breakdown: ProductAnalytics[];
   signups_timeline: TimelineDataPoint[];
-  recent_signups: SignupEntry[];
+  all_signups: SignupEntry[];
 }
 
 export interface EventAnalyticsResponse {
   eventAnalytics: EventAnalytics;
+}
+
+// Checkin / Credentialing types
+export interface EventSignup {
+  id: string;
+  name: string;
+  email?: string;
+  phone_number?: string;
+  checked_in?: boolean;
+  checked_in_at?: string;
+  product_name?: string;
+}
+
+export interface CheckinResponse {
+  success: boolean;
+  message?: string;
+  signup?: EventSignup;
+}
+
+export interface EventSignupsResponse {
+  eventSignups: EventSignup[];
+}
+
+export interface CheckinSignupResponse {
+  checkinSignup: CheckinResponse;
+}
+
+export interface CredentialCheckedInData {
+  credentialCheckedIn: EventSignup;
+}
+
+export interface ImportSignupsResponse {
+  importSignups: {
+    success: boolean;
+    message?: string;
+    imported_count: number;
+    skipped_count: number;
+    errors?: string[];
+  };
+}
+
+export interface ManualSignupResponse {
+  manualSignup: {
+    success: boolean;
+    message?: string;
+    account_created: boolean;
+  };
 }

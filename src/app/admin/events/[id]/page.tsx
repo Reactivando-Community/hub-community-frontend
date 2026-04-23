@@ -10,7 +10,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { format } from 'date-fns';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Award, BarChart3 } from 'lucide-react';
+import { Award, BarChart3, FileSpreadsheet, QrCode, Printer } from 'lucide-react';
 
 export default function EditEventPage() {
   const router = useRouter();
@@ -22,9 +22,11 @@ export default function EditEventPage() {
     data,
     loading: queryLoading,
     error,
+    refetch,
   } = useQuery<EventResponse>(GET_EVENT_BY_SLUG_OR_ID, {
     variables: { slugOrId: id },
     skip: !id,
+    fetchPolicy: 'network-only',
   });
 
   const [updateEvent, { loading: mutationLoading }] =
@@ -32,6 +34,7 @@ export default function EditEventPage() {
   const [updateEventSale] =
     useMutation<UpdateEventSaleResponse>(UPDATE_EVENT_SALE);
   const [initialData, setInitialData] = useState<any>(null);
+  const eventSlug = data?.eventBySlugOrId?.slug || id;
 
   useEffect(() => {
     if (data?.eventBySlugOrId) {
@@ -71,6 +74,7 @@ export default function EditEventPage() {
         is_online: formData.is_online || false,
         call_link: formData.call_link || '',
         description: formData.description,
+        images: formData.images,
         location: formData.location?.id || formData.location, // Send ID string
         communities: formData.communityId ? [formData.communityId] : [],
         talks: formData.talks?.map((t: any) => t.id) || [],
@@ -87,7 +91,7 @@ export default function EditEventPage() {
       });
 
       // Save products & batches via the separate updateEventSale mutation
-      if (formData.products && formData.products.length > 0) {
+      if (formData.products) {
         try {
           await updateEventSale({
             variables: {
@@ -95,11 +99,11 @@ export default function EditEventPage() {
               data: {
                 max_slots: Number(formData.max_slots) || 0,
                 products: formData.products.map((p: any) => ({
-                  id: p.id || undefined,
+                  id: (p.id && p.id.toString().startsWith('new-')) ? undefined : p.id || undefined,
                   name: p.name,
                   enabled: p.enabled !== false,
                   batches: (p.batches || []).map((b: any) => ({
-                    id: b.id || undefined,
+                    id: (b.id && b.id.toString().startsWith('new-')) ? undefined : b.id || undefined,
                     batch_number: Number(b.batch_number) || 1,
                     value: Number(b.value) || 0,
                     max_quantity: Number(b.max_quantity) || 0,
@@ -126,6 +130,9 @@ export default function EditEventPage() {
         title: 'Evento atualizado',
         description: 'O evento foi atualizado com sucesso.',
       });
+
+      // Refetch queries so initial data updates immediately
+      await refetch();
 
       return responseData?.updateEvent?.id || eventId;
     } catch (error) {
@@ -196,6 +203,27 @@ export default function EditEventPage() {
           >
             <Award className="w-4 h-4 mr-2" />
             Certificados
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/admin/events/${id}/import-signups`)}
+          >
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Inscrições
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => window.open(`/checkin/${eventSlug}`, '_blank')}
+          >
+            <QrCode className="w-4 h-4 mr-2" />
+            Check-in
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => window.open(`/badge-printer/live/${eventSlug}`, '_blank')}
+          >
+            <Printer className="w-4 h-4 mr-2" />
+            Crachá
           </Button>
         </div>
       </div>

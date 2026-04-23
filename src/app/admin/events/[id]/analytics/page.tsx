@@ -2,7 +2,7 @@
 
 import { useQuery } from '@apollo/client';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ArrowLeft,
   Users,
@@ -19,6 +19,7 @@ import {
   MousePointerClick,
   Share2,
   Globe,
+  Download,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -52,8 +53,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { getApolloClient } from '@/lib/apollo-client';
 import { GET_EVENT_ANALYTICS, GET_EVENT_TRACKING_METRICS } from '@/lib/queries';
-import { EventAnalyticsResponse } from '@/lib/types';
+import { EventAnalyticsResponse, SignupEntry } from '@/lib/types';
 
 /* ─── Color Palette ──────────────────────────────────────────── */
 const COLORS = {
@@ -194,6 +196,7 @@ export default function EventAnalyticsPage() {
   const params = useParams();
   const id = params?.id as string;
   const [trackingPeriod, setTrackingPeriod] = useState('all');
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { data, loading, error, refetch } = useQuery<EventAnalyticsResponse>(
     GET_EVENT_ANALYTICS,
@@ -217,6 +220,85 @@ export default function EventAnalyticsPage() {
   );
 
   const trackingMetrics = trackingData?.eventTrackingMetrics;
+
+  /* ─── CSV Download Handler ──────────────────────────────────── */
+  // Must be declared before any early returns to respect Rules of Hooks
+  const downloadParticipantsCsv = useCallback(async () => {
+    setIsDownloading(true);
+
+    try {
+      // Re-fetch fresh data to ensure we have the latest signups
+      const client = getApolloClient();
+      const { data: freshData } = await client.query<EventAnalyticsResponse>({
+        query: GET_EVENT_ANALYTICS,
+        variables: { slugOrId: id },
+        fetchPolicy: 'network-only',
+      });
+
+      const signups: SignupEntry[] = freshData?.eventAnalytics?.all_signups || [];
+
+      if (signups.length === 0) {
+        alert('Nenhum participante encontrado.');
+        return;
+      }
+
+      // Build CSV content
+      const header = ['Nome', 'E-mail', 'WhatsApp', 'Produto', 'Data de Inscrição'];
+      const rows = signups.map((s) => {
+        const date = s.created_at
+          ? new Date(s.created_at).toLocaleDateString('pt-BR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : '';
+
+        return [
+          s.name || '',
+          s.email || '',
+          s.phone_number || '',
+          s.product_name || '',
+          date,
+        ];
+      });
+
+      // Escape CSV fields (handle commas, quotes, newlines)
+      const escapeField = (field: string) => {
+        if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+          return `"${field.replace(/"/g, '""')}"`;
+        }
+        return field;
+      };
+
+      const csvContent =
+        '\uFEFF' + // BOM for Excel UTF-8 compatibility
+        [header, ...rows]
+          .map((row) => row.map(escapeField).join(','))
+          .join('\n');
+
+      // Trigger download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const eventTitle = (freshData?.eventAnalytics?.event_title || 'evento')
+        .replace(/[^a-zA-Z0-9À-ÿ\s]/g, '')
+        .replace(/\s+/g, '_')
+        .toLowerCase();
+      a.href = url;
+      a.download = `participantes_${eventTitle}_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Erro ao baixar CSV:', err);
+      alert('Erro ao gerar o CSV. Tente novamente.');
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [id]);
 
   if (loading) {
     return (
@@ -251,6 +333,7 @@ export default function EventAnalyticsPage() {
   }
 
   const analytics = data?.eventAnalytics;
+
   if (!analytics) {
     return (
       <div className="container mx-auto py-20 text-center space-y-4">
@@ -823,17 +906,33 @@ export default function EventAnalyticsPage() {
           </Card>
         )}
 
-        {/* ─── Recent Signups ──────────────────────────────────── */}
-        {analytics.recent_signups.length > 0 && (
+        {/* ─── All Signups ─────────────────────────────────────── */}
+        {(analytics.all_signups?.length ?? 0) > 0 && (
           <Card className="border-border/50">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <UserPlus className="w-4 h-4 text-primary" />
-                Inscrições Recentes
-              </CardTitle>
-              <CardDescription>
-                Últimas {analytics.recent_signups.length} inscrições
-              </CardDescription>
+            <CardHeader className="flex flex-row items-start justify-between space-y-0">
+              <div>
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <UserPlus className="w-4 h-4 text-primary" />
+                  Participantes
+                </CardTitle>
+                <CardDescription className="mt-1.5">
+                  {analytics.all_signups?.length ?? 0} inscrições
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={downloadParticipantsCsv}
+                disabled={isDownloading}
+                className="gap-2 shrink-0"
+              >
+                {isDownloading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Download className="w-3.5 h-3.5" />
+                )}
+                Baixar CSV
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -848,7 +947,7 @@ export default function EventAnalyticsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {analytics.recent_signups.map((signup, index) => {
+                    {analytics.all_signups?.map((signup, index) => {
                       const date = signup.created_at
                         ? new Date(signup.created_at).toLocaleDateString(
                             'pt-BR',

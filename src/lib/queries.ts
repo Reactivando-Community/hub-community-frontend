@@ -715,7 +715,7 @@ export const GET_EVENT_ANALYTICS = gql`
         date
         count
       }
-      recent_signups {
+      all_signups {
         name
         email
         phone_number
@@ -758,6 +758,75 @@ export const DELETE_COMMUNITY = gql`
   mutation DeleteCommunity($id: String!) {
     deleteCommunity(id: $id) {
       id
+    }
+  }
+`;
+
+// Checkin / Credentialing
+export const EVENT_SIGNUPS = gql`
+  query EventSignups($eventSlug: String!, $search: String) {
+    eventSignups(eventSlug: $eventSlug, search: $search) {
+      id
+      name
+      email
+      phone_number
+      checked_in
+      checked_in_at
+      product_name
+    }
+  }
+`;
+
+export const CHECKIN_SIGNUP = gql`
+  mutation CheckinSignup($eventSlug: String!, $signupId: String!) {
+    checkinSignup(eventSlug: $eventSlug, signupId: $signupId) {
+      success
+      message
+      signup {
+        id
+        name
+        email
+        phone_number
+        checked_in
+        checked_in_at
+        product_name
+      }
+    }
+  }
+`;
+
+export const CREDENTIAL_CHECKED_IN = gql`
+  subscription CredentialCheckedIn($eventSlug: String!) {
+    credentialCheckedIn(eventSlug: $eventSlug) {
+      id
+      name
+      email
+      phone_number
+      checked_in
+      checked_in_at
+      product_name
+    }
+  }
+`;
+
+export const IMPORT_SIGNUPS = gql`
+  mutation ImportSignups($eventSlug: String!, $batchId: String!, $signups: [SignupImportInput!]!) {
+    importSignups(eventSlug: $eventSlug, batchId: $batchId, signups: $signups) {
+      success
+      message
+      imported_count
+      skipped_count
+      errors
+    }
+  }
+`;
+
+export const MANUAL_SIGNUP = gql`
+  mutation ManualSignup($eventSlug: String!, $batchId: String!, $input: ManualSignupInput!) {
+    manualSignup(eventSlug: $eventSlug, batchId: $batchId, input: $input) {
+      success
+      message
+      account_created
     }
   }
 `;
