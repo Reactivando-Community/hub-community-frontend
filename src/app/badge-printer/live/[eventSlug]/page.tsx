@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery, useSubscription, useMutation } from '@apollo/client';
+import {
   Check,
   Loader2,
   Monitor,
@@ -271,7 +272,6 @@ export default function LiveBadgePrinterPage() {
                   )}
                 </div>
               </div>
-            </div>
             </div>
             <div className="flex items-center gap-2">
               <Dialog open={showManualCheckin} onOpenChange={setShowManualCheckin}>
